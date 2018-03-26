@@ -1,0 +1,9 @@
+FreelancerNodeServer/node_modules/*
+FreelancerNodeServer/.idea/*
+FreelancerNodeServer/public/ProfileImage/*
+FreelancerNodeServer/public/project_files/*
+freelancerreact/.idea/*
+freelancerreact/node_modules/*
+freelancerreact/.gitignore
+freelancerreact/README.md
+.idea/*
