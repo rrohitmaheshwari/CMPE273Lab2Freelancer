@@ -7,10 +7,12 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var cors = require('cors');
 
-var session = require('client-sessions');
-//var session = require('express-session');
-//var mongoStore = require("connect-mongo/es5")(session);
-//var mongoSessionURL = "mongodb://localhost:27017/sessions";
+var passport = require('passport');
+require('./routes/passport');
+//var session = require('client-sessions');
+var session = require('express-session');
+var mongoStore = require("connect-mongo/es5")(session);
+var mongoSessionURL = "mongodb://localhost:27017/sessions";
 
 var app = express();
 
@@ -45,8 +47,27 @@ app.use(session({
     secret: 'cmpe273_test_string',
     duration: 30 * 60 * 1000,    //setting the time for active session 10 min
     activeDuration: 5 * 60 * 1000,
-   // store: new mongoStore({url: mongoSessionURL})
+    store: new mongoStore({url: mongoSessionURL})
 })); // setting time for the session to be active when the window is open // 1/ minute set currently
+
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+//method to serialize user for storage
+passport.serializeUser(function(user, done) {
+    done(null, user._id);
+});
+
+// method to de-serialize back for auth
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+        done(err, user);
+    });
+});
+
+
 
 
 app.use('/', index);

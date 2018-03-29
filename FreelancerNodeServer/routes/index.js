@@ -7,6 +7,9 @@ let path = require('path')
 const bcrypt    = require('bcryptjs');
 const multer = require('multer');
 
+var passport = require('passport');
+require('../routes/passport');
+
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -16,63 +19,77 @@ router.get('/', function (req, res, next) {
 /* POST user authentication. */
 router.post('/users/authenticate', function (req, res) {
 
-    var getUser = "select user_id,username,email,name,summary,phone,about_me,skills,looking_for,password from users where username='" + req.body.username + "'";
-    var username=req.body.username;
 
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            throw err;
+    // var getUser = "select user_id,username,email,name,summary,phone,about_me,skills,looking_for,password from users where username='" + req.body.username + "'";
+    // var username=req.body.username;
+    //
+    //
+    // mysql.fetchData(function (err, results) {
+    //     if (err) {
+    //         throw err;
+    //     }
+    //     else {
+    //         if (results.length > 0) {
+    //             bcrypt.compare(req.body.password, results[0].password, function (err, resp) {
+    //                 if (resp) {
+    //                     // Passwords match
+    //                     console.log("valid Login");
+    //                     //Assigning the session
+    //                     req.session.username = req.body.username;
+    //                     res.status(200).send({user: results[0]});
+    //                 } else {
+    //                     // Passwords doesn't match
+    //                     res.statusMessage="The email and password you entered did not match our records. Please double-check and try again.";
+    //                     res.status(400).end();
+    //                 }
+    //             })
+    //         }
+    //         else {
+    //             console.log("Invalid Login!");
+    //             res.statusMessage = "The username and password you entered did not match our records. Please double-check and try again.";
+    //             res.status(400).end();
+    //         }
+    //     }
+    // }, getUser);
+
+
+
+
+    passport.authenticate('login', function(err, user) {
+        if(err) {
+            res.status(500).send();
+        }
+
+        if(!user) {
+            res.status(400).send();
         }
         else {
-            if (results.length > 0) {
-                bcrypt.compare(req.body.password, results[0].password, function (err, resp) {
-                    if (resp) {
-                        // Passwords match
-                        console.log("valid Login");
-                        //Assigning the session
-                        req.session.username = req.body.username;
-                        res.status(200).send({user: results[0]});
-                    } else {
-                        // Passwords doesn't match
-                        res.statusMessage="The email and password you entered did not match our records. Please double-check and try again.";
-                        res.status(400).end();
-                    }
-                })
-            }
-            else {
-                console.log("Invalid Login!");
-                res.statusMessage = "The username and password you entered did not match our records. Please double-check and try again.";
-                res.status(400).end();
-            }
+            req.session.user = user.username;
+            console.log(user);
+            console.log("session initilized");
+            res.status(200).send({user:user});
         }
-    }, getUser);
+    })(req,res);
 });
 
 
 /* POST user registration. */
 router.post('/users/register', function(req,res) {
-    console.log(req.body);
-    // check user already exists
-    bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(req.body.password, salt, (err, hash) => {
 
-            let insertQuery = "INSERT INTO `users` (`name`,`email`, `username`, `password`,`looking_for`) VALUES ('" + req.body.Name + "','" + req.body.Email + "', '" + req.body.username + "', '" + hash + "', '" + req.body.looking_for +"')";
-            mysql.fetchData(function (err, results) {
-                if (err) {
-                    if(err.message.includes("for key 'username_UNIQUE'")) {
-                        res.statusMessage = "This username already exists!";
-                    }else if(err.message.includes("for key 'email_UNIQUE'")) {
-                        res.statusMessage = "This email address is already in use!";
-                    }
-                    console.log("reject");
-                    res.status(400).end();
-                }
-                else {
-                    res.status(200).send({user:"User created successfully"});
-                }
-            }, insertQuery);
-        })
-    })
+    passport.authenticate('signup', function(err,user,results){
+        if(err){
+            res.status(500).send({user:"Server Error"});
+        }
+        if(user === false){
+            console.log("node index.js-");
+            console.log(results);
+            res.statusMessage = results.value;
+            res.status(400).end();
+        }
+        else {
+            res.status(200).send({user:"User created successfully"});
+        }
+    })(req,res);
 
 });
 
