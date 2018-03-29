@@ -6,4 +6,5 @@ freelancerreact/.idea/*
 freelancerreact/node_modules/*
 freelancerreact/.gitignore
 freelancerreact/README.md
+kafka-back-end/node_modules/*
 .idea/*
