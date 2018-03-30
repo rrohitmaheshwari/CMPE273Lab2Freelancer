@@ -54,7 +54,7 @@ function handle_request(msg, callback) {
             callback(null, res);
         });
 
-    console.log('---------');
+
 
 
 }

@@ -9,13 +9,13 @@ module.exports = passport.use('login', new LocalStrategy(function (username, pas
     console.log('in password');
     kafka.make_request('login_topic', {"username": username, "password": password}, function (err, results) {
         console.log('in result');
-        console.log(results);
+      //  console.log(results);
         if (err) {
             done(err, {});
         }
         else {
             if (results.code == 200) {
-                done(null, {username: username, password: password});
+                done(null, {username: username, password: password, name: results.value.name, email: results.value.email});
             }
             else {
                 done(null, false);

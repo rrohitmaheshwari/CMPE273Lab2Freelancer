@@ -4,8 +4,8 @@ var router = express.Router();
 var mysql = require('./mysql_without_connectionPool');
 let fs = require('fs');
 let path = require('path')
-const bcrypt    = require('bcryptjs');
 const multer = require('multer');
+var kafka = require('./kafka/client');
 
 var passport = require('passport');
 require('../routes/passport');
@@ -18,43 +18,6 @@ router.get('/', function (req, res, next) {
 
 /* POST user authentication. */
 router.post('/users/authenticate', function (req, res) {
-
-
-    // var getUser = "select user_id,username,email,name,summary,phone,about_me,skills,looking_for,password from users where username='" + req.body.username + "'";
-    // var username=req.body.username;
-    //
-    //
-    // mysql.fetchData(function (err, results) {
-    //     if (err) {
-    //         throw err;
-    //     }
-    //     else {
-    //         if (results.length > 0) {
-    //             bcrypt.compare(req.body.password, results[0].password, function (err, resp) {
-    //                 if (resp) {
-    //                     // Passwords match
-    //                     console.log("valid Login");
-    //                     //Assigning the session
-    //                     req.session.username = req.body.username;
-    //                     res.status(200).send({user: results[0]});
-    //                 } else {
-    //                     // Passwords doesn't match
-    //                     res.statusMessage="The email and password you entered did not match our records. Please double-check and try again.";
-    //                     res.status(400).end();
-    //                 }
-    //             })
-    //         }
-    //         else {
-    //             console.log("Invalid Login!");
-    //             res.statusMessage = "The username and password you entered did not match our records. Please double-check and try again.";
-    //             res.status(400).end();
-    //         }
-    //     }
-    // }, getUser);
-
-
-
-
     passport.authenticate('login', function(err, user) {
         if(err) {
             res.status(500).send();
@@ -64,7 +27,7 @@ router.post('/users/authenticate', function (req, res) {
             res.status(400).send();
         }
         else {
-            req.session.user = user.username;
+            req.session.username = user.username;
             console.log(user);
             console.log("session initilized");
             res.status(200).send({user:user});
@@ -95,8 +58,80 @@ router.post('/users/register', function(req,res) {
 
 
 
+/* POST user home Project details. */
+
+
+router.post('/home/getdetails', function (req, res) {
+    //  var sqlQuery = "SELECT *,count(user_projects_project_id) as bid_count from  (SELECT projects.project_id ,projects.emp_username,projects.title,projects.description,projects.budget_range,projects.skills_req, projects.status,DATE_FORMAT(projects.complete_by,'%d/%m/%Y') as niceDate,user_projects.project_id as user_projects_project_id from  freelancerdb.projects left join freelancerdb.user_projects ON projects.project_id = user_projects.project_id Where status=\"Open\" ) as complete_table WHERE emp_username<>'"+req.body.username+"' group by project_id";
+    //
+    //
+    //  console.log("Requesting session User" + req.session.username);
+    // if (req.session.username) {
+    //      mysql.fetchData(function (err, results) {
+    //          if (err) {
+    //              throw err;
+    //          }
+    //          else {
+    //              if (results.length > 0) {
+    //                  console.log("Fetch Successful!");
+    //                  res.status(201).send({result: results});
+    //              }
+    //              else {
+    //                  console.log("No data fetched!");
+    //                  res.statusMessage = "No data fetched";
+    //                  res.status(201).send({result: []});
+    //              }
+    //          }
+    //      }, sqlQuery);
+    //  }
+    //  else
+    // {
+    //     console.log("Session expired!");
+    //     res.statusMessage = "Session expired!";
+    //     res.status(400).end();
+    //
+    // }
+    if (req.session.username) {
+        kafka.make_request('home_project_topic', {"username": req.body.username}, function (err, results) {
+            console.log('in home_project_topic');
+            console.log(results);
+            if (err) {
+
+                console.log("err" + err);
+                res.statusMessage = "Server error!";
+                res.status(500).end();
+            }
+            else {
+                if (results.code === 201) {
+                    console.log("Fetch Successful!");
+                    console.log(results.value);
+                    res.status(201).send({result: results.value});
+
+                }
+                else {
+                    console.log("No data fetched");
+                    res.statusMessage = "No data fetched";
+                    res.status(200).send({result: []});
+                }
+            }
+
+        });
+
+    }
+    else
+    {
+             console.log("Session expired!");
+            res.statusMessage = "Session expired!";
+            res.status(400).end();
+    }
+
+});
+
 router.post('/getUser', function(req, res, next) {
     //  console.log("req:"+req);
+
+
+
     console.log("req.session.username:"+req.session.username);
     if(req.session.username) {
         var getUser = "select * from users where username='" + req.session.username + "'";
@@ -125,41 +160,7 @@ router.post('/getUser', function(req, res, next) {
     }
 });
 
-/* POST user home details. */
 
-router.post('/home/getdetails', function (req, res) {
-
-    var sqlQuery = "SELECT *,count(user_projects_project_id) as bid_count from  (SELECT projects.project_id ,projects.emp_username,projects.title,projects.description,projects.budget_range,projects.skills_req, projects.status,DATE_FORMAT(projects.complete_by,'%d/%m/%Y') as niceDate,user_projects.project_id as user_projects_project_id from  freelancerdb.projects left join freelancerdb.user_projects ON projects.project_id = user_projects.project_id Where status=\"Open\" ) as complete_table WHERE emp_username<>'"+req.body.username+"' group by project_id";
-
-
-    console.log("Requesting session User" + req.session.username);
-   if (req.session.username) {
-        mysql.fetchData(function (err, results) {
-            if (err) {
-                throw err;
-            }
-            else {
-                if (results.length > 0) {
-                    console.log("Fetch Successful!");
-                    res.status(201).send({result: results});
-                }
-                else {
-                    console.log("No data fetched!");
-                    res.statusMessage = "No data fetched";
-                    res.status(201).send({result: []});
-                }
-            }
-        }, sqlQuery);
-    }
-    else
-   {
-       console.log("Session expired!");
-       res.statusMessage = "Session expired!";
-       res.status(400).end();
-
-   }
-
-});
 
 router.get('/project/getprojectdetails', function (req, res) {
 
@@ -562,24 +563,52 @@ router.post('/user/updateName', function(req,res) {
     }, updateQuery);
 });
 
+
+/* POST PROJECT post request*/
 router.post('/project/post-project', function(req,res) {
-    console.log(req.body);
-    // check user already exists
-    if(req.session.username) {
-        let insertQuery = "INSERT INTO `projects` (`emp_username`, `title`, `description`, `budget_range`, `skills_req`, `status`, `complete_by`, `filenames`) VALUES ('"
-            + req.session.username + "', '" + req.body.title + "', '" + req.body.description + "', '" + req.body.budget_range + "', '" + req.body.skills_req + "', '" + req.body.status + "', '" + req.body.complete_by + "', '" + req.body.filenames + ",')";
-        mysql.fetchData(function (err, results) {
+
+    // console.log(req.body);
+    // // check user already exists
+    // if(req.session.username) {
+    //     let insertQuery = "INSERT INTO `projects` (`emp_username`, `title`, `description`, `budget_range`, `skills_req`, `status`, `complete_by`, `filenames`) VALUES ('"
+    //         + req.session.username + "', '" + req.body.title + "', '" + req.body.description + "', '" + req.body.budget_range + "', '" + req.body.skills_req + "', '" + req.body.status + "', '" + req.body.complete_by + "', '" + req.body.filenames + ",')";
+    //     mysql.fetchData(function (err, results) {
+    //         if (err) {
+    //             res.statusMessage = "Error in Posting project.";
+    //             res.status(400).end();
+    //         }
+    //         else {
+    //             //res.statusMessage = "Project Created successfully!";
+    //             res.status(200).send({message:"Project Created successfully!"});
+    //         }
+    //     }, insertQuery);
+    // }else {
+    //     res.statusMessage = "invalid session";
+    //     res.status(401).end();
+    // }
+
+    if (req.session.username) {
+        kafka.make_request('create_project_topic', {"request": req.body,"username":req.session.username}, function (err, results) {
+            console.log('in create_project_topic');
+            console.log(results);
             if (err) {
-                res.statusMessage = "Error in Posting project.";
-                res.status(400).end();
+
+                console.log("err" + err);
+                res.status(500).send({message:"Server Error!"});
             }
             else {
-                //res.statusMessage = "Project Created successfully!";
-                res.status(200).send({message:"Project Created successfully!"});
+                    console.log("Fetch Successful!");
+                    res.status(200).send({message:"Project Created successfully!"});
+
             }
-        }, insertQuery);
-    }else {
-        res.statusMessage = "invalid session";
+
+        });
+
+    }
+    else
+    {
+        console.log("Session expired!");
+        res.statusMessage = "Session expired!";
         res.status(401).end();
     }
 

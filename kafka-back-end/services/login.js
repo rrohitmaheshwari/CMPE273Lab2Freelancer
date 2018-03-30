@@ -16,14 +16,14 @@ function handle_request(msg, callback) {
         msg.password = hash.digest('hex');
         coll.findOne({username: msg.username, password: msg.password}, function (err, user) {
             if (user) {
-                //  done(null,user/* {username: username, password: password}*/);
+
                 res.code = "200";
                 res.value = user;
                 console.log(user);
                 console.log(res.value);
 
             } else {
-                //    done(null, false);
+
                 res.code = "400";
                 res.value = "Failed Login";
                 console.log(res.value);
@@ -32,21 +32,7 @@ function handle_request(msg, callback) {
             callback(null, res);
         });
     })
-    /*   }
-   catch (e){
-       done(e,{});
-   }*/
-    /*if(msg.username == "bhavan@b.com" && msg.password =="a"){
-        res.code = "200";
-        res.value = "Success Login";
 
-    }
-    else{
-        res.code = "401";
-        res.value = "Failed Login";
-    }*/
-    /*console.log("outside try:" + res);
-    callback(null, res);*/
 }
 
 exports.handle_request = handle_request;
