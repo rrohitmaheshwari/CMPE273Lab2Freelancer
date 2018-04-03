@@ -14,6 +14,8 @@ import filesize             from 'filesize';
 import {history} from "../Helpers";
 import 'react-datepicker/dist/react-datepicker.css';
 import Alert from 'react-s-alert';
+import {userActions} from "../Actions";
+
 
 
 class PostProject extends React.Component {
@@ -147,6 +149,8 @@ class PostProject extends React.Component {
                                 //     timeout: 1500,
                                 //     offset: 50
                                 // });
+                                const {dispatch} = this.props;
+                                dispatch(userActions.fetchHomeProject(this.props.user));
                                 window.alert(response.data.message);
                             },
                             error => {

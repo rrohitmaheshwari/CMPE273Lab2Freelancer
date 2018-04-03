@@ -24,6 +24,7 @@ class HomePage extends React.Component {
     componentWillMount(){
         const {dispatch} = this.props;
         dispatch({type: "HOME"});
+        dispatch(userActions.fetchHomeProject(this.props.user));
 
     }
 

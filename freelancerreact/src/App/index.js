@@ -17,12 +17,6 @@ import {BidProject} from "../BidProject";
 import {HireProject} from "../HireProject";
 import {ViewProfilePage} from "../ViewProfilePage";
 
-
-
-
-
-
-
 import fllogo from '../Images/Logo.png';
 
 class App extends React.Component {
@@ -65,8 +59,6 @@ class App extends React.Component {
         if (user) {
             if (navbar.page === "home") {
                 homepage = true;
-                const { dispatch } = this.props;
-                dispatch(userActions.fetchHomeProject(this.props.user));
             }
             else if (navbar.page === "dashboard")
             { dashboardpage = true;

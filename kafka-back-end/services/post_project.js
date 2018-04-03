@@ -19,7 +19,7 @@ function handle_request(msg, callback) {
         skills_req:  msg.request.skills_req,
         status: msg.request.status,
         complete_by:  msg.request.complete_by,
-        filenames:  msg.request.filenames,
+        filenames:  msg.request.filenames+",",
         freelancer_username:  msg.request.freelancer_username
 
 
