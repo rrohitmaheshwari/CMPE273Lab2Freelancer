@@ -28,8 +28,7 @@ export const RESTService = {
     sendFile,
     postProject,
     uploadFile,
-    getByUserName,
-
+    getByUserName
 };
 
 function login(username, password) {

@@ -42,13 +42,13 @@ KafkaRPC.prototype.makeRequest = function(topic_name, content, callback){
     //make sure we have a response topic
     self.setupResponseQueue(self.producer,topic_name,function(){
         console.log('in response');
-        //put the request on a topic
 
+        //put the request on a topic
         var payloads = [
             { topic: topic_name, messages: JSON.stringify({
-                correlationId:correlationId,
-                replyTo:'response_topic',
-                data:content}),
+                    correlationId:correlationId,
+                    replyTo:'response_topic_all',
+                    data:content}),
                 partition:0}
         ];
         console.log('in response1');
@@ -71,7 +71,7 @@ KafkaRPC.prototype.setupResponseQueue = function(producer,topic_name, next){
     self = this;
 
     //subscribe to messages
-    var consumer = self.connection.getConsumer('response_topic');
+    var consumer = self.connection.getConsumer('response_topic_all');
     consumer.on('message', function (message) {
         console.log('msg received');
         var data = JSON.parse(message.value);

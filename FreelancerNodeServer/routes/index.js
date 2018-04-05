@@ -16,6 +16,32 @@ router.get('/', function (req, res, next) {
     res.render('index', {title: 'Freelancer Server'});
 });
 
+
+// Get current user details
+router.post('/getUser', isAuthenticated,function(req, res, next) {
+    //setting queue name and payload
+    kafka.make_request('getUser_topic', {
+            "username"  : req.session.username,
+        }, function (err, results) {
+            console.log('in /getUser result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Username does not exist. Please double-check and try again.";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    console.log('/getUser:: results.value');
+                    console.log(results.value);
+
+                    //success case
+                    res.status(200).send({user : results.value});
+                }
+            }
+        }
+    );
+});
+
 /* POST user authentication/user login. */
 router.post('/users/authenticate', function (req, res) {
     passport.authenticate('login', function(err, user) {
@@ -56,6 +82,36 @@ router.post('/users/register', function(req,res) {
 
 });
 
+/* POST PROJECT post request*/
+router.post('/project/post-project', function(req,res) {
+
+
+
+    if (req.session.username) {
+        kafka.make_request('post-project_topic', {"request": req.body,"username":req.session.username}, function (err, results) {
+            console.log('in post-project_topic');
+            console.log(results);
+            if (err) {
+                console.log("err" + err);
+                res.status(500).send({message:"Server Error!"});
+            }
+            else {
+                console.log("Fetch Successful!");
+                res.status(200).send({message:"Project Created successfully!"});
+
+            }
+
+        });
+
+    }
+    else
+    {
+        console.log("Session expired!");
+        res.statusMessage = "Session expired!";
+        res.status(401).end();
+    }
+
+});
 
 
 /* POST home page Project details. */
@@ -98,6 +154,74 @@ router.post('/home/getdetails', function (req, res) {
 });
 
 
+/* Profile update requests*/
+function isAuthenticated(req, res, next) {
+
+    // CHECK THE USER STORED IN SESSION
+    console.log('###isAuthenticated called###');
+    console.log('req.session.username'+req.session.username);
+
+    if (req.session.username)
+        return next();
+
+    // IF A USER ISN'T LOGGED IN, THEN REDIRECT THEM SOMEWHERE
+    res.statusMessage = "Session expired!";
+    res.status(400).end();
+}
+
+router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
+    console.log('###updateAboutMe called###');
+    console.log(req.body);
+
+    //setting queue name and payload
+    kafka.make_request('updateAboutMe_topic', {
+            "username"  : req.session.username,
+            "about_me"  : req.body.about,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'About Me' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'About Me' successfully"});
+                }
+            }
+        }
+    );
+});
+
+
+
+router.post('/user/updateName', isAuthenticated, function(req,res) {
+    console.log('###updateName called###');
+    console.log(req.body);
+    //setting queue name and payload
+    kafka.make_request('updateName_topic', {
+            "username"  : req.session.username,
+            "name"      : req.body.name,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'Name' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'Name' successfully"});
+                }
+            }
+        }
+    );
+});
+
+
+
 
 router.post('/getUser', function(req, res, next) {
 
@@ -134,48 +258,25 @@ router.post('/getUser', function(req, res, next) {
 router.get('/project/getprojectdetails', function (req, res) {
 
     console.log(req.body);
-    if (req.session.username) {
-        kafka.make_request('get_project_details_topic', {"request": req.query.project_id}, function (err, results) {
-            console.log('in get_project_details_topic');
+    kafka.make_request('project_details', {
+            "username"      : req.session.username,
+            "project_id"    : req.query.project_id
+        }, function (err, results) {
+            console.log('in result');
             console.log(results);
             if (err) {
-
-                console.log("err" + err);
-                res.statusMessage = "Server error!";
-                res.status(500).end();
-            }
-            else {
-
-                    console.log("Fetch Successful!!!");
+                //failure case
+                res.statusMessage = "Cannot fetch Projects at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code === 200) {
+                    console.log("Fetch Successful!");
                     console.log(results.value);
-                    var newObj=[{
-
-                emp_username: results.value[0].emp_username,
-                    title: results.value[0].title,
-                    description: results.value[0].description,
-                    budget_range: results.value[0].budget_range,
-                    skills_req: results.value[0].skills_req,
-                    complete_by_shortdate: results.value[0].complete_by,
-                    filenames: results.value[0].filenames,
-                    project_id: results.value[0].project_id,
-
-                    }];
-                console.log(newObj);
-
-            res.status(200).send({result: newObj});
+                    res.status(200).send({result: results.value});
+                }
             }
-
-        });
-
-    }
-    else
-    {
-        console.log("Session expired!");
-        res.statusMessage = "Session expired!";
-        res.status(400).end();
-    }
-
-
+        }
+    );
 });
 
 
@@ -183,32 +284,32 @@ router.get('/project/getprojectdetails', function (req, res) {
 router.get('/project/getMyProjectDetails', function (req, res) {
 
 
-
-    var sqlQuery = "SELECT projects.project_id,title,DATE_FORMAT(projects.complete_by,'%d-%m-%Y') as complete_by_shortdate,status,freelancer_username,table2.avg_bid FROM freelancerdb.projects left join (SELECT project_id,avg(bid_price) as avg_bid FROM freelancerdb.user_projects group by project_id) as table2 on  projects.project_id=table2.project_id  where emp_username='"+req.query.username+"' order by status desc;";
-
-
-    console.log("Requesting session User->" + req.session.username);
-    if (req.session.username) {
-        mysql.fetchData(function (err, results) {
+    console.log('###getMyProjectDetails called###');
+    console.log(req.body);
+    //setting queue name and payload
+    kafka.make_request('dashboard_project_topic', {
+            "username"  : req.session.username,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
             if (err) {
-                throw err;
+                //failure case
+                res.statusMessage = "Cannot fetch Projects at the moment";
+                res.status(400).end();
+            }else {
+                if (results.code === 201) {
+                    console.log("Fetch Successful!");
+                    console.log(results.value);
+                    res.status(201).send({result: results.value});
+                }
+                else {
+                    console.log("No data fetched");
+                    res.statusMessage = "No data fetched";
+                    res.status(200).send({result: []});
+                }
             }
-            else {
-
-                console.log("Fetch Project Details Successful!");
-                res.statusMessage = "Data fetched";
-                res.status(200).send({result: results});
-
-            }
-        }, sqlQuery);
-    }
-    else
-    {
-        console.log("Session expired!");
-        res.statusMessage = "Session expired!";
-        res.status(400).end();
-
-    }
+        }
+    );
 
 });
 
@@ -571,36 +672,6 @@ router.post('/user/updateName', function(req,res) {
 });
 
 
-/* POST PROJECT post request*/
-router.post('/project/post-project', function(req,res) {
-
-
-
-    if (req.session.username) {
-       kafka.make_request('create_project_topic', {"request": req.body,"username":req.session.username}, function (err, results) {
-            console.log('in create_project_topic');
-            console.log(results);
-            if (err) {
-                console.log("err" + err);
-                res.status(500).send({message:"Server Error!"});
-            }
-            else {
-                    console.log("Fetch Successful!");
-                    res.status(200).send({message:"Project Created successfully!"});
-
-            }
-
-        });
-
-    }
-    else
-    {
-        console.log("Session expired!");
-        res.statusMessage = "Session expired!";
-        res.status(401).end();
-    }
-
-});
 
 
 

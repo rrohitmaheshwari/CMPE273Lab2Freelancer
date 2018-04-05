@@ -1,29 +1,28 @@
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    autoIncrement = require('mongoose-auto-increment');
+const  mongoose     = require('../mongoose');
+const  Schema       = mongoose.Schema;
 
-var connection = mongoose.createConnection("mongodb://localhost:27017/freelancer");
+var BidsSchema = new Schema({
 
-autoIncrement.initialize(connection);
-// create a schema
-var homeProject = new Schema({
-
-
-    emp_username: {type: String},
-    title: {type: String},
-    description: {type: String},
-    budget_range: {type: String},
-    skills_req: {type: String},
-    status: {type: String},
-    complete_by: {type: String},
-    filenames: {type: String},
-    freelancer_username: {type: String},
-
-
+    username    : { type: String, trim: true },
+    name        : { type: String, trim: true },
+    bid_price   : { type: String, trim: true },
+    days_req    : { type: String, trim: true }
 });
 
-homeProject.set('versionKey', false);
+// create a schema
+var ProjectSchema = new Schema({
 
-homeProject.plugin(autoIncrement.plugin,  { model: 'projects', field: 'project_id' });
+    emp_username        : { type: String, trim: true },
+    title               : { type: String, trim: true },
+    description         : { type: String, trim: true, default: '' },
+    budget_range        : { type: String, trim: true, default: '' },
+    skills_req          : { type: String, trim: true, default: '' },
+    status              : { type: String, trim: true, default: '' },
+    complete_by         : { type: String, trim: true, default: '' },
+    filenames           : { type: String, trim: true, default: '' },
+    freelancer_username : { type: String, trim: true, default: '' },
+    bids                : [{ type: BidsSchema}]
+});
 
-module.exports = mongoose.model('projects', homeProject, 'projects');
+let Project = mongoose.model('Project', ProjectSchema,'projects');
+module.exports =  Project;

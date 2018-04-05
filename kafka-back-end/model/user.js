@@ -1,13 +1,18 @@
-var mongoose = require('mongoose');
+const  mongoose     = require('../mongoose');
+const  Schema       = mongoose.Schema;
 
 // create a schema
-var user = new mongoose.Schema({
-
-    username: { type: String, unique: true},
-    password: { type: String },
-    name: String,
-    email: { type: String, unique: true},
-    looking_for: String
+var UserSchema = new Schema({
+    username    : { type: String, trim: true, required: true, unique: true },
+    email       : { type: String, trim: true, required: true, unique: true },
+    password    : { type: String, required: true },
+    name        : { type: String, trim: true, default: '' },
+    summary     : { type: String, trim: true, default: '' },
+    phone       : { type: String, trim: true, default: '' },
+    about_me    : { type: String, trim: true, default: '' },
+    skills      : { type: String, trim: true, default: '' },
+    looking_for : { type: String, trim: true, default: '' }
 });
 
-module.exports = mongoose.model('user', user,'user');
+let User = mongoose.model('User', UserSchema,'users');
+module.exports =  User;

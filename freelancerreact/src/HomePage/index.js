@@ -11,6 +11,16 @@ import {userActions} from "../Actions";
 
 class HomePage extends React.Component {
 
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            currentPageNumber: 1,
+            itemsPerPage: 10
+        };
+    }
+
     handleSubmit(push_page, e) {
         e.preventDefault();
 
@@ -28,12 +38,25 @@ class HomePage extends React.Component {
 
     }
 
+    handleChangePage = (number) => {
+        // e.preventDefault();
+        console.log('####handleChangePage.event.target:');
+        // console.log(event.target.value);
+        console.log(number);
+        this.setState({
+            currentPageNumber: Number(number)
+        });
+    };
+
     render() {
+        //Pagination variables
+        let currentItems;
+        const pageNumbers = [];
+
         const {user} = this.props;
         console.log("User Details from Store-->");
         console.log(user);
         const {homecontent} = this.props;
-
 
         if (homecontent && homecontent.payload) {
             console.log("homecontent from store-->");
@@ -41,7 +64,26 @@ class HomePage extends React.Component {
             console.log(homecontent.payload);
             console.log(homecontent.payload.result);
 
+            //Pagination logic
+            const { currentPageNumber, itemsPerPage } = this.state;
+            // Logic for displaying current items
+            const indexOfLastItem = currentPageNumber * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            currentItems = homecontent.payload.result.slice(indexOfFirstItem, indexOfLastItem);
+
+            // Logic for displaying page numbers
+            for (let i = 1; i <= Math.ceil(homecontent.payload.result.length / itemsPerPage); i++) {
+                pageNumbers.push(i);
+            }
         }
+
+        const renderPageNumbers = pageNumbers.map(number => {
+            return (
+                <li key={number} id={number}>
+                    <a onClick = {() => this.handleChangePage(number)}> {number} </a>
+                </li>
+            );
+        });
         return (
             <div>
 
@@ -78,10 +120,10 @@ class HomePage extends React.Component {
 
 
                                         {homecontent.payload &&
-                                        homecontent.payload.result.map((data) =>
+                                        currentItems.map((data) =>
 
 
-                                            <div className="ProjectFeed" key={data.project_id}>
+                                            <div className="ProjectFeed" key={data._id}>
 
                                                 <div className="col-sm-1 col-sm-offset-0">
 
@@ -90,7 +132,7 @@ class HomePage extends React.Component {
                                                 </div>
                                                 <div className="col-sm-4 col-sm-offset-0">
 
-                                                    <a href={`/BidProject?project_id=${data.project_id}`}> <span className="ProjectTitle"> {data.title}</span></a>
+                                                    <a href={`/BidProject?project_id=${data._id}`}> <span className="ProjectTitle"> {data.title}</span></a>
                                                     <br/>
                                                     <span className="ProjectDescription"> {data.description}</span>
                                                     <br/>
@@ -102,7 +144,7 @@ class HomePage extends React.Component {
                                                 <div className="col-sm-2 col-sm-offset-0">
 
 
-                                                    {data.bid_count}
+                                                    {data.bids.length}
 
 
                                                 </div>
@@ -115,7 +157,7 @@ class HomePage extends React.Component {
 
                                                     <span className="shiftsmallleft">{data.budget_range}</span>
                                                     <br/><br/>
-                                                    <button className="btn btn-primary" id="BidProjectButton" value={data.project_id} onClick={this.handleSubmit.bind(this, "/BidProject")}>Bid Now
+                                                    <button className="btn btn-primary" id="BidProjectButton" value={data._id} onClick={this.handleSubmit.bind(this, "/BidProject")}>Bid Now
                                                     </button>
 
                                                 </div>
@@ -125,9 +167,12 @@ class HomePage extends React.Component {
                                             </div>
                                         )
                                         }
-
-
                                     </div>
+                                </div>
+                                <div className="pagination">
+                                    <ul id="page-numbers">
+                                        {renderPageNumbers}
+                                    </ul>
                                 </div>
                             </div>
                         </div>

@@ -143,19 +143,19 @@ class DashboardPage extends React.Component {
 
 
                                         {this.state.my_project_details.map((data) =>
-                                            <tr key={data.project_id}>
+                                            <tr key={data._id.id}>
                                                 <td><img className="FreeLancerIconDashboard" src={Icon} alt="FreelancerIcon"/>
-                                                    <a href={`/HireProject?project_id=${data.project_id}`}>{data.title}</a></td>
-                                                <td>{Number(data.avg_bid).toFixed(2)}</td>
-                                                <td>{data.complete_by_shortdate}</td>
-                                                <td>{data.status}</td>
+                                                    <a href={`/HireProject?project_id=${data._id.id}`}>{data._id.title}</a></td>
+                                                <td>{Number(data._id.avg_bid).toFixed(2)}</td>
+                                                <td>{data._id.complete_by}</td>
+                                                <td>{data._id.status}</td>
                                                 <td>{
-                                                    data.freelancer_username &&
-                                                    <a href={`/ViewProfilePage/${data.freelancer_username}`}>@{data.freelancer_username}</a>
+                                                    data._id.freelancer_username &&
+                                                    <a href={`/ViewProfilePage/${data._id.freelancer_username}`}>@{data._id.freelancer_username}</a>
                                                 }
-                                                    {!data.freelancer_username &&
+                                                    {!data._id.freelancer_username &&
                                                     <button className="btn btn-primary" id="BidProjectButton"
-                                                            value={data.project_id}
+                                                            value={data._id.id}
                                                             onClick={this.handleSubmitPost.bind(this, "/HireProject")}>
                                                         Hire
                                                     </button>

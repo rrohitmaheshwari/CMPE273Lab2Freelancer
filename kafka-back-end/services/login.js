@@ -1,5 +1,5 @@
 var mongo = require("./mongo");
-var mongoURL = "mongodb://localhost:27017/freelancer";
+var mongoURL = "mongodb://localhost:27017/freelancerdb";
 //var bcrypt = require('bcrypt');
 var crypto = require('crypto');
 
@@ -9,7 +9,7 @@ function handle_request(msg, callback) {
     console.log("In handle request:" + JSON.stringify(msg));
     mongo.myconnect(mongoURL, function () {
         console.log('Connected to mongo at: ' + mongoURL);
-        var coll = mongo.collection('user');
+        var coll = mongo.collection('users');
         key = "273"
         var hash = crypto.createHmac('sha512', key); //encrytion using SHA512
         hash.update(msg.password);
