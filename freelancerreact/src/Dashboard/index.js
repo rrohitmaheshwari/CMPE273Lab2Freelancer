@@ -45,7 +45,7 @@ class DashboardPage extends React.Component {
                 }
             );
 
-        RESTService.getMyBidDetails(user.user_id)
+        RESTService.getMyBidDetails()
             .then(
                 response => {
                     if (response.result.length > 0)
@@ -146,7 +146,7 @@ class DashboardPage extends React.Component {
                                             <tr key={data._id.id}>
                                                 <td><img className="FreeLancerIconDashboard" src={Icon} alt="FreelancerIcon"/>
                                                     <a href={`/HireProject?project_id=${data._id.id}`}>{data._id.title}</a></td>
-                                                <td>{Number(data._id.avg_bid).toFixed(2)}</td>
+                                                <td>{Number(data.avg_bid).toFixed(2)}</td>
                                                 <td>{data._id.complete_by}</td>
                                                 <td>{data._id.status}</td>
                                                 <td>{
@@ -229,7 +229,7 @@ class DashboardPage extends React.Component {
                                                     <a href={`/BidProject?project_id=${data.project_id}`}>{data.title}</a></td>
                                                 <td><a href={`/ViewProfilePage/${data.emp_username}`}>@{data.emp_username}</a></td>
                                                 <td>{Number(data.avg_bid).toFixed(2)}</td>
-                                                <td>{data.bid_price}</td>
+                                                <td>{data.bids.bid_price}</td>
                                                 <td>{data.status}</td>
                                             </tr>
                                         )

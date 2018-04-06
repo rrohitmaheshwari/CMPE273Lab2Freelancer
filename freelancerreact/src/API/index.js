@@ -122,7 +122,7 @@ function getMyProjectDetails(username) {
     return fetch(`${api}/project/getMyProjectDetails?username=${username}`, requestOptions).then(handleResponse);
 }
 
-function getMyBidDetails(user_id) {
+function getMyBidDetails() {
     const requestOptions = {
         method: 'GET',
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -130,7 +130,7 @@ function getMyBidDetails(user_id) {
 
     };
 
-    return fetch(`${api}/project/getMyBidDetails?user_id=${user_id}`, requestOptions).then(handleResponse);
+    return fetch(`${api}/project/getMyBidDetails`, requestOptions).then(handleResponse);
 }
 
 function getBidDetails(project_id) {
@@ -140,7 +140,7 @@ function getBidDetails(project_id) {
         credentials: 'include',
         body: JSON.stringify({project_id})
     };
-    return fetch(`${api}/project/getdetails`, requestOptions).then(handleResponse);
+    return fetch(`${api}/project/getBidDetails`, requestOptions).then(handleResponse);
 }
 
 function getBidHeader(project_id) {

@@ -82,24 +82,24 @@ class BidProject extends React.Component {
         const {dispatch} = this.props;
 
 
-        // RESTService.getBidDetails(Project_ID)
-        //     .then(
-        //         response => {
-        //
-        //             this.setState({"bid_table_data": response.result});
-        //             if (response.result.length > 0)
-        //                 this.setState({"showtable": true});
-        //         },
-        //         error => {
-        //             console.log("Error/fetchHomeProject:");
-        //             console.log(error);
-        //             localStorage.removeItem('user');
-        //             dispatch({type: "USERS_LOGOUT"});
-        //             RESTService.logout();
-        //             history.push('/Login');  //home page after session expire
-        //
-        //         }
-        //     );
+        RESTService.getBidDetails(Project_ID)
+            .then(
+                response => {
+
+                    this.setState({"bid_table_data": response.result});
+                    if (response.result.length > 0  && response.result[0].bids)
+                        this.setState({"showtable": true});
+                },
+                error => {
+                    console.log("Error/fetchHomeProject:");
+                    console.log(error);
+                    localStorage.removeItem('user');
+                    dispatch({type: "USERS_LOGOUT"});
+                    RESTService.logout();
+                    history.push('/Login');  //home page after session expire
+
+                }
+            );
 
         RESTService.getprojectdetails(Project_ID)
             .then(
@@ -130,20 +130,6 @@ class BidProject extends React.Component {
                 }
             );
 
-        //
-        // RESTService.getBidHeader(Project_ID)
-        //     .then(
-        //         response => {
-        //             this.setState({"bid_header": response.result[0]});
-        //             console.log(this.state.project_details);
-        //         },
-        //         error => {
-        //             console.log("Error/fetchHomeProject:");
-        //             console.log(error);
-        //
-        //
-        //         }
-        //     );
 
 
     }
@@ -220,7 +206,7 @@ class BidProject extends React.Component {
 
                                         <span>Avg Bid</span>
                                         <br/><span
-                                        className="ProjectHeaderValue">{Number(this.state.bid_header.avg_bid).toFixed(2)}$</span>
+                                        className="ProjectHeaderValue">{Number(this.state.project_details.avg_bid).toFixed(2)}$</span>
                                     </div>
                                     <div className="col-sm-2 col-sm-offset-0" id="ProjectDetailBox">
 
@@ -318,7 +304,7 @@ class BidProject extends React.Component {
                                                 <span><em>Your Total Bid    </em></span>
                                             </div>
                                             <div className="col-md-7 col-md-offset-0">
-                                                <b>${this.state.Total_Bid} USD</b>
+                                                <b>${this.state.Your_Total_Bid} USD</b>
                                             </div>
                                         </div>
 
@@ -388,7 +374,7 @@ class BidProject extends React.Component {
                                         </button>
                                         <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/><br/> <br/> <br/> <br/> <br/>
                                         <br/> <br/>
-                                        <span id="textrightshift100"><b>Project Id:</b></span>{this.state.project_details.project_id}
+                                        <span><b>Project Id:</b></span>{this.state.project_details._id.id}
                                     </div>
 
                                 </div>
@@ -421,12 +407,12 @@ class BidProject extends React.Component {
                                         }
                                         {this.state.showtable &&
                                         this.state.bid_table_data.map((data) =>
-                                            <tr key={data.id} className="bidtablerow">
-                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.username}.jpg` } alt={``} onError={(e)=>{e.target.src=ProfileImage}}/></td>
-                                                <td><p>{data.name}</p>
-                                                    <a href={`/ViewProfilePage/${data.username}`}>@{data.username}</a></td>
-                                                <td>{data.bid_price} USD</td>
-                                                <td>{data.days_req} days</td>
+                                            <tr key={data._id + data.bids.username} className="bidtablerow">
+                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg` } alt={``} onError={(e)=>{e.target.src=ProfileImage}}/></td>
+                                                <td><p>{data.bids.name}</p>
+                                                    <a href={`/ViewProfilePage/${data.bids.username}`}>@{data.bids.username}</a></td>
+                                                <td>{data.bids.bid_price} USD</td>
+                                                <td>{data.bids.days_req} days</td>
                                             </tr>
                                         )
                                         }

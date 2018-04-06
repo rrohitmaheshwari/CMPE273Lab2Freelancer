@@ -5,11 +5,10 @@ function handle_request(msg, callback) {
 
     var res = {};
     console.log("In project_details.js handle_request():");
-    console.log(msg);
     var pipeline = [
         {
             "$match": {
-                // "_id": new mongodb.ObjectID(msg.project_id)
+                "_id": new mongodb.ObjectID(msg.project_id)
             }
         },
         {
@@ -18,13 +17,13 @@ function handle_request(msg, callback) {
                     "$size": { "$ifNull": [ "$bids", [] ] } //{ $ifNull: [ <expression>, <replacement-expression-if-null> ] }
                 }
             }
-        },        
+        },
         {
             "$unwind": {
                 "path": "$bids",
                 "preserveNullAndEmptyArrays": true
             }
-        }, 
+        },
         {
             "$group": {
                 "_id": {
@@ -48,8 +47,6 @@ function handle_request(msg, callback) {
     ];
 
     // Test code
-
-
     var promise = Project.aggregate(pipeline).exec();
 
     promise.then(function (data) {

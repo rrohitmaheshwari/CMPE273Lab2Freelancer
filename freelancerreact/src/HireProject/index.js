@@ -13,15 +13,17 @@ class HireProject extends React.Component {
         super(props);
         this.state = {
             project_details: {
-                "project_id": '',
-                "emp_username": '',
-                "title": '',
-                "description": '',
-                "budget_range": '',
-                "skills_req": '',
-                "complete_by_shortdate": '',
-                "filenames": '',
-                "name": ''
+                "_id": {
+                    "id": '',
+                    "emp_username": '',
+                    "title": '',
+                    "description": '',
+                    "budget_range": '',
+                    "skills_req": '',
+                    "complete_by_shortdate": '',
+                    "filenames": '',
+                    "name": ''
+                }
             },
             bid_table_data: {},
             bid_header: {
@@ -34,7 +36,8 @@ class HireProject extends React.Component {
             Project_Fee:'0',
             Your_Total_Bid:'0',
             Weekly_Milestone:'0',
-            filenames:[]
+            filenames:[],
+            project_status: true,
         };
 
     };
@@ -49,26 +52,26 @@ class HireProject extends React.Component {
         const {dispatch} = this.props;
 
 
-        RESTService.getBidDetails(Project_ID)
-            .then(
-                response => {
-                    console.log("getBidDetails");
-console.log(response.result);
-                    this.setState({"bid_table_data": response.result});
+        RESTService.getBidDetails(Project_ID).then(
+            response => {
+console.log("bid details-");
+                console.log(response.result);
 
-                    if (response.result.length > 0)
-                        this.setState({"showtable": true});
-                },
-                error => {
-                    console.log("Error/fetchHomeProject:");
-                    console.log(error);
-                    localStorage.removeItem('user');
-                    dispatch({type: "USERS_LOGOUT"});
-                    RESTService.logout();
-                    history.push('/Login');  //home page after session expire
+                this.setState({"bid_table_data": response.result});
+                if (response.result.length > 0 && response.result[0].bids)
+                    this.setState({"showtable": true});
 
-                }
-            );
+            },
+            error => {
+
+                console.log("Error/fetchHomeProject:");
+                console.log(error);
+                localStorage.removeItem('user');
+                dispatch({type: "USERS_LOGOUT"});
+                RESTService.logout();
+                history.push('/Login');  //Login page after session expire
+            }
+        );
 
         RESTService.getprojectdetails(Project_ID)
             .then(
@@ -80,10 +83,14 @@ console.log(response.result);
                     }
                     this.setState({"project_details": response.result[0]});
 
-                    if(this.state.project_details.filenames && this.state.project_details.filenames.indexOf(",") > 0)
-                        this.setState({"filenames": this.state.project_details.filenames.split(",")});
+                    if(this.state.project_details._id.filenames && this.state.project_details._id.filenames.indexOf(",") > 0)
+                        this.setState({"filenames": this.state.project_details._id.filenames.split(",")});
                     else
                         this.setState({"filenames": []});
+                    if (this.state.project_details._id.status === "Assigned")
+                    {
+                        this.setState({"project_status": false});
+                    }
                     console.log(this.state.filenames);
                     console.log(this.state.project_details);
                 },
@@ -99,19 +106,6 @@ console.log(response.result);
             );
 
 
-        RESTService.getBidHeader(Project_ID)
-            .then(
-                response => {
-                    this.setState({"bid_header": response.result[0]});
-                    console.log(this.state.project_details);
-                },
-                error => {
-                    console.log("Error/fetchHomeProject:");
-                    console.log(error);
-
-
-                }
-            );
 
 
     }
@@ -119,21 +113,19 @@ console.log(response.result);
 
     handleSubmit( e) {
         e.preventDefault();
-        console.log("Hit");
-        console.log(e.target.value);
-        console.log(this.state.project_details.project_id);
 
         var insert_Data = {
-            freelancer_username:e.target.value,
-            project_id:this.state.project_details.project_id,
-        }
+            freelancer_username: e.target.value,
+            project_id: this.state.project_details._id.id,
+        };
+
 
         RESTService.postFreelancer(insert_Data)
             .then(
                 response => {
                     console.log(response);
                     window.alert('Success!');
-                    history.push("/HomePage")
+                    history.push("/dashboard")
 
                 },
                 error => {
@@ -154,7 +146,7 @@ console.log(response.result);
                 <div className="jumbotron">
                     <div className="col-sm-8 col-sm-offset-2">
                         <div className="col-md-12 col-md-offset-0">
-                            <span className="ProjectTitleBid"> {this.state.project_details.title}</span>
+                            <span className="ProjectTitleBid"> {this.state.project_details._id.title}</span>
                         </div>
                     </div>
 
@@ -169,7 +161,7 @@ console.log(response.result);
 
                                         <span>Bids</span>
                                         <br/><span
-                                        className="ProjectHeaderValue">{this.state.bid_header.bid_count}</span>
+                                        className="ProjectHeaderValue">       {this.state.project_details._id.bid_count}</span>
 
                                     </div>
                                     <div className="col-sm-2 col-sm-offset-0" id="ProjectDetailBox">
@@ -177,19 +169,19 @@ console.log(response.result);
 
                                         <span>Avg Bid</span>
                                         <br/><span
-                                        className="ProjectHeaderValue">{Number(this.state.bid_header.average_bid).toFixed(2)}$</span>
+                                        className="ProjectHeaderValue">   {Number(this.state.project_details.avg_bid).toFixed(2)}$</span>
                                     </div>
                                     <div className="col-sm-2 col-sm-offset-0" id="ProjectDetailBox">
 
 
                                         <span>Project Budget </span>
                                         <br/><span
-                                        className="ProjectHeaderValue">{this.state.project_details.budget_range}</span>
+                                        className="ProjectHeaderValue">       {this.state.project_details._id.budget_range}</span>
                                     </div>
                                     <div className="col-sm-5 col-sm-offset-0" id="ProjectDetailBoxEnd">
                                         <span>Expected</span>
                                         <br/><span
-                                        className="ProjectHeaderValue">{this.state.project_details.complete_by_shortdate}</span>
+                                        className="ProjectHeaderValue">{this.state.project_details._id.complete_by}</span>
 
                                     </div>
 
@@ -206,23 +198,23 @@ console.log(response.result);
 
                                         <span className="ProjectTitleSubheading"> Project Description </span>
                                         <br/>
-                                        <span>{this.state.project_details.description}</span>
+                                        <span>{this.state.project_details._id.description}</span>
                                         <br/>
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Employer</span>
                                         <br/>
-                                        <span>{this.state.project_details.name}<br/>@{this.state.project_details.emp_username}</span>
+                                        <span>    {this.state.project_details.name}<br/>   <a href={`/ViewProfile/${this.state.project_details._id.emp_username}`}>@{this.state.project_details._id.emp_username}</a></span>
                                         <br/>
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Skills Required</span>
-                                        <span>{this.state.project_details.skills_req}</span>
+                                        <span>{this.state.project_details._id.skills_req}</span>
                                         <br/>
                                         <br/>
                                         <span className="ProjectTitleSubheading">Files</span>
                                         <span>{
                                             this.state.filenames.map((data) =>
                                               <div key={data}>
-                                               <a target="_blank" href={`http://localhost:3001/project_files/${this.state.project_details.emp_username}/${data}`}>
+                                               <a target="_blank" href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
                                                   {data}
                                                 </a>
                                                 <br/>
@@ -239,7 +231,7 @@ console.log(response.result);
 
                                         <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/><br/> <br/> <br/> <br/> <br/>
                                         <br/> <br/>
-                                        <span id="textrightshift100"><b>Project Id:</b></span>{this.state.project_details.project_id}
+                                        <span><b>Project Id:</b></span>{this.state.project_details._id.id}
                                     </div>
 
                                 </div>
@@ -271,16 +263,25 @@ console.log(response.result);
                                                 <td></td>
                                                 <td></td>
                                             </tr>
+
                                         }
                                         {this.state.showtable &&
                                         this.state.bid_table_data.map((data) =>
-                                            <tr key={data.id}>
-                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.username}.jpg`} onError={(e)=>{e.target.src=ProfileImage}}/></td>
-                                                <td>{data.name}{' '}@{data.username}</td>
-                                                <td>{data.bid_price} USD</td>
-                                                <td>{data.days_req} days</td>
-                                                <td><button className="btn btn-primary" id="BidProjectButton" value={data.username} onClick={this.handleSubmit.bind(this)}>Hire
-                                                </button></td>
+                                            <tr key={data._id + data.bids.username}>
+                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg`} onError={(e)=>{e.target.src=ProfileImage}}/></td>
+                                                <td>         <p className="mb-0">{data.bids.name}</p>
+                                                    <a href={`/ViewProfile/${data.bids.username}`}> @{data.bids.username}</a></td>
+                                                <td>{data.bids.bid_price} USD</td>
+                                                <td>{data.bids.days_req} days</td>
+                                                <td>
+                                                { (data.bids.username===this.state.project_details._id.freelancer_username) &&
+                                                <span>Hired</span>
+                                                }
+                                                    { !(data.bids.username===this.state.project_details._id.freelancer_username)  &&
+                                                    <button className="btn btn-primary" id="BidProjectButton" value={data.bids.username} onClick={this.handleSubmit.bind(this)}>Hire
+                                                    </button>
+                                                    }
+                                        </td>
 
 
                                             </tr>

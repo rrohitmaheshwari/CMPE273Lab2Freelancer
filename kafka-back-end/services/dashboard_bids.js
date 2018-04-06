@@ -9,7 +9,7 @@ function handle_request(msg, callback) {
         {
             "$match": {
                 "bids.username": {
-                    "$eq": "relansaket"
+                    $eq: msg.username
                 }
             }
         }, 
@@ -29,7 +29,7 @@ function handle_request(msg, callback) {
         {
             "$match": {
                 "bids.username": {
-                    "$eq": "relansaket"
+                    $eq: msg.username
                 }
             }
         }

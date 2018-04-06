@@ -5,8 +5,8 @@ var BidsSchema = new Schema({
 
     username    : { type: String, trim: true },
     name        : { type: String, trim: true },
-    bid_price   : { type: String, trim: true },
-    days_req    : { type: String, trim: true }
+    bid_price   : { type: Number, trim: true },
+    days_req    : { type: Number, trim: true }
 });
 
 // create a schema

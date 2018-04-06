@@ -16,6 +16,7 @@ var dashboard_bids = require('./services/dashboard_bids');
 var project_details = require('./services/project_details');
 var project_BidDetails = require('./services/project_BidDetails');
 var post_bid = require('./services/post-bid');
+var post_freelancer     = require('./services/post-freelancer');
 
 
 var producer = connection.getProducer();
@@ -36,6 +37,7 @@ var consumer_dashboard_bids = connection.getConsumer('dashboard_project_bids');
 var consumer_project_details = connection.getConsumer('project_details');
 var consumer_project_BidDetails = connection.getConsumer('project_BidDetails');
 var consumer_post_bid = connection.getConsumer('post-bid_topic');
+var consumer_post_freelancer    = connection.getConsumer('post-freelancer_topic');
 
 
 // native promises
@@ -400,6 +402,31 @@ consumer_post_bid.on('message', function (message) {
         }
         ];
         producer.send(payloads, function (err, data) {
+            console.log("data from kafka-");
+            console.log(payloads);
+        });
+        return;
+    });
+});
+
+
+consumer_post_freelancer.on('message', function (message) {
+    console.log('message received');
+    console.log(message.value);
+    var data = JSON.parse(message.value);
+    post_freelancer.handle_request(data.data, function(err,res){
+        console.log('after handle-');
+        console.log(res);
+        var payloads = [{
+            topic: data.replyTo,
+            messages:JSON.stringify({
+                correlationId:data.correlationId,
+                data : res
+            }),
+            partition : 0
+        }
+        ];
+        producer.send(payloads, function(err, data){
             console.log("data from kafka-");
             console.log(payloads);
         });
