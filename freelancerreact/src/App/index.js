@@ -18,6 +18,7 @@ import {HireProject} from "../HireProject";
 import {ViewProfilePage} from "../ViewProfilePage";
 
 import fllogo from '../Images/Logo.png';
+import {RESTService} from "../API";
 
 class App extends React.Component {
     constructor(props) {
@@ -42,16 +43,40 @@ class App extends React.Component {
         e.preventDefault();
 
         console.log("Logging out...");
+        localStorage.removeItem('user');
         const {dispatch} = this.props;
         dispatch(userActions.logout());
         dispatch({type: "UNSET"});
-        history.push('/login');
+        dispatch({type: "USERS_LOGOUT"});
+        RESTService.logout().then(history.push('/login'));
+
+
 
     }
 
     componentWillMount(){
         const { dispatch } = this.props;
         dispatch(userActions.getByUserName());
+
+        //
+        //
+        // RESTService.getMyProjectDetails(user.username)
+        //     .then(
+        //         response => {
+        //
+        //
+        //         },
+        //         error => {
+        //             console.log("Error/fetchHomeProject:");
+        //             console.log(error);
+        //             localStorage.removeItem('user');
+        //             dispatch({type: "USERS_LOGOUT"});
+        //             RESTService.logout();
+        //             history.push('/Login');  //home page after session expire
+        //
+        //         }
+        //     );
+
     }
     render() {
         const { user, navbar} = this.props;

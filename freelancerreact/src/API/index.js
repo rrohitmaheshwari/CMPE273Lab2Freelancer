@@ -182,11 +182,12 @@ function logout() {
         headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
         credentials: 'include'
     };
-
+    console.log("call logging out!");
     return fetch(`${api}/user/logout`, requestOptions).then(handleResponse)
         .then(response => {
             localStorage.removeItem('user');
             console.log(response)
+            console.log("logout successfully!");
         });
 }
 

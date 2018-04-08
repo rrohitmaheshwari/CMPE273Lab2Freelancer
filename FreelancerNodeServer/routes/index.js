@@ -10,6 +10,16 @@ var kafka = require('./kafka/client');
 var passport = require('passport');
 require('../routes/passport');
 
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'do.not.reply.rohit@gmail.com',
+        pass: 'Asdfg~!2017'
+    }
+});
+
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -60,6 +70,9 @@ router.post('/users/authenticate', function (req, res) {
             res.status(200).send({user:user});
         }
     })(req,res);
+
+
+
 });
 
 
@@ -453,6 +466,23 @@ router.post('/project/postFreelancer', isAuthenticated, function (req, res) {
             }
         }
     );
+
+
+
+    var mailOptions = {
+        from: 'do.not.reply.rohit@gmail.com',
+        to: 'rrohit.maheshwari@gmail.com',   //change it to actual email id
+        subject: 'You have been hired',
+        text: 'Go to your Freelancer account for more details!\nProjectID: '+req.body.data.project_id,
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
 });
 
 
@@ -490,14 +520,14 @@ router.post('/project/postbiddata', isAuthenticated, function (req, res) {
 
 
 
-router.post('/user/logout', function (reqƒ, res) {
+router.post('/user/logout', function (req, res) {
 
 
 
     console.log("req.session.username:" + req.session.username);
     if(req.session.username) {
         req.session.destroy();
-        console.log("Session Destroyed!");
+        console.log("Session Destroyed!-"+req.session.username);
         res.status(200).send({ message: "Logout" });
     } else {
         console.log("Session not found/already destroyed!");
@@ -505,7 +535,6 @@ router.post('/user/logout', function (reqƒ, res) {
     }
 
 });
-
 
 
 router.post('/getProfileImg', function(req, res, next) {
