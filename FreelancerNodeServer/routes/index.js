@@ -415,35 +415,35 @@ router.get('/project/getbidheader', function (req, res) {
 
 
 });
-
-router.post('/project/getdetails', function (req, res) {
-
-
-    var sqlQuery="SELECT id,users.user_id,project_id,bid_price,days_req,username,name from  freelancerdb.user_projects left join  freelancerdb.users  on users.user_id = user_projects.user_id  where project_id='"+req.body.project_id+"'";
-    console.log("Requesting session User>" + req.session.username);
-    if (req.session.username) {
-        mysql.fetchData(function (err, results) {
-            if (err) {
-                throw err;
-            }
-            else {
-
-                    console.log("Fetch Project Details Successful!");
-                    res.statusMessage = "Data fetched";
-                    res.status(200).send({result: results});
-
-            }
-        }, sqlQuery);
-    }
-    else
-    {
-        console.log("Session expired!");
-        res.statusMessage = "Session expired!";
-        res.status(400).end();
-
-    }
-
-});
+//
+// router.post('/project/getdetails', function (req, res) {
+//
+//
+//     var sqlQuery="SELECT id,users.user_id,project_id,bid_price,days_req,username,name from  freelancerdb.user_projects left join  freelancerdb.users  on users.user_id = user_projects.user_id  where project_id='"+req.body.project_id+"'";
+//     console.log("Requesting session User>" + req.session.username);
+//     if (req.session.username) {
+//         mysql.fetchData(function (err, results) {
+//             if (err) {
+//                 throw err;
+//             }
+//             else {
+//
+//                     console.log("Fetch Project Details Successful!");
+//                     res.statusMessage = "Data fetched";
+//                     res.status(200).send({result: results});
+//
+//             }
+//         }, sqlQuery);
+//     }
+//     else
+//     {
+//         console.log("Session expired!");
+//         res.statusMessage = "Session expired!";
+//         res.status(400).end();
+//
+//     }
+//
+// });
 
 router.post('/project/postFreelancer', isAuthenticated, function (req, res) {
 
@@ -539,7 +539,7 @@ router.post('/user/logout', function (req, res) {
 
 router.post('/getProfileImg', function(req, res, next) {
     if(req.session.username) {
-        fs.readFile('/Users/rohit/Documents/GitHub/CMPE273/CMPE273Lab1Freelancer/FreelancerNodeServer/public/ProfileImage/' + req.body.username + '.jpg', function (err, content) {
+        fs.readFile('/Users/rohit/Documents/GitHub/CMPE273/CMPE273Lab2Freelancer/FreelancerNodeServer/public/ProfileImage/' + req.body.username + '.jpg', function (err, content) {
             console.log("###img:", content);
             if (err) {
                 res.writeHead(400, {'Content-type': 'text/html'})
@@ -593,80 +593,136 @@ router.post('/getOtherUser', function(req, res, next) {
     }
 });
 
-router.post('/user/updateAboutMe', function(req,res) {
+// User profile update 'About Me' request
+router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
+
+    console.log('###updateAboutMe called###');
     console.log(req.body);
-    // check user already exists
-    let updateQuery = "UPDATE `users` SET `about_me`='" + req.body.about +"' WHERE `username`='" + req.session.username + "'";
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            res.statusMessage = "Cannot set 'About Me' at the moment";
-            res.status(400).end();
-        } else {
-            res.status(200).send({about:"Updated 'About Me' successfully"});
+
+    //setting queue name and payload
+    kafka.make_request('updateAboutMe_topic', {
+            "username"  : req.session.username,
+            "about_me"  : req.body.about,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'About Me' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'About Me' successfully"});
+                }
+            }
         }
-    }, updateQuery);
+    );
 });
 
+// User profile update 'Name' request
+router.post('/user/updateName', isAuthenticated, function(req,res) {
 
-router.post('/user/updateSummary', function(req,res) {
+    console.log('###updateName called###');
     console.log(req.body);
-    // check user already exists
-    let updateQuery = "UPDATE `users` SET `summary`='" + req.body.summary +"' WHERE `username`='" + req.session.username + "'";
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            res.statusMessage = "Cannot set 'Summary' at the moment";
-            res.status(400).end();
+    //setting queue name and payload
+    kafka.make_request('updateName_topic', {
+            "username"  : req.session.username,
+            "name"      : req.body.name,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'Name' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'Name' successfully"});
+                }
+            }
         }
-        else {
-            res.status(200).send({about:"Updated 'Summary' successfully"});
-        }
-    }, updateQuery);
+    );
 });
 
-router.post('/user/updateSkills', function(req,res) {
+// User profile update 'Phone' request
+router.post('/user/updatePhone', isAuthenticated, function(req,res) {
+
+    console.log('###updatePhone called###');
     console.log(req.body);
-    // check user already exists
-    let updateQuery = "UPDATE `users` SET `skills`='" + req.body.skills +"' WHERE `username`='" + req.session.username + "'";
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            res.statusMessage = "Cannot set 'Skills' at the moment";
-            res.status(400).end();
-        } else {
-            res.status(200).send({about:"Updated 'Skills' successfully"});
+    //setting queue name and payload
+    kafka.make_request('updatePhone_topic', {
+            "username"  : req.session.username,
+            "phone"     : req.body.phone,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'Phone' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'Phone' successfully"});
+                }
+            }
         }
-    }, updateQuery);
+    );
 });
 
-router.post('/user/updatePhone', function(req,res) {
+// User profile update 'Summary' request
+router.post('/user/updateSummary', isAuthenticated, function(req,res) {
+
+    console.log('###updateSummary called###');
     console.log(req.body);
-    // check user already exists
-    let updateQuery = "UPDATE `users` SET `phone`='" + req.body.phone +"' WHERE `username`='" + req.session.username + "'";
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            res.statusMessage = "Cannot set 'Phone' at the moment";
-            res.status(400).end();
-        } else {
-            res.status(200).send({about:"Updated 'Phone' successfully"});
+    //setting queue name and payload
+    kafka.make_request('updateSummary_topic', {
+            "username"  : req.session.username,
+            "summary"   : req.body.summary,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'Summary' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'Summary' successfully"});
+                }
+            }
         }
-    }, updateQuery);
+    );
 });
 
-router.post('/user/updateName', function(req,res) {
+// User profile update 'Skills' request
+router.post('/user/updateSkills', isAuthenticated, function(req,res) {
+
+    console.log('###updateSkills called###');
     console.log(req.body);
-    // check user already exists
-    let updateQuery = "UPDATE `users` SET `name`='" + req.body.name +"' WHERE `username`='" + req.session.username + "'";
-    mysql.fetchData(function (err, results) {
-        if (err) {
-            res.statusMessage = "Cannot set 'Name' at the moment";
-            res.status(400).end();
-        } else {
-            res.status(200).send({about:"Updated 'Name' successfully"});
+    //setting queue name and payload
+    kafka.make_request('updateSkills_topic', {
+            "username"  : req.session.username,
+            "skills"    : req.body.skills,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot set 'Skills' at the moment";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    //success case
+                    res.status(200).send({about:"Updated 'Skills' successfully"});
+                }
+            }
         }
-    }, updateQuery);
+    );
 });
-
-
-
 
 
 var storageProjFiles = multer.diskStorage({

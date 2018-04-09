@@ -55,27 +55,9 @@ class App extends React.Component {
     }
 
     componentWillMount(){
+
         const { dispatch } = this.props;
         dispatch(userActions.getByUserName());
-
-        //
-        //
-        // RESTService.getMyProjectDetails(user.username)
-        //     .then(
-        //         response => {
-        //
-        //
-        //         },
-        //         error => {
-        //             console.log("Error/fetchHomeProject:");
-        //             console.log(error);
-        //             localStorage.removeItem('user');
-        //             dispatch({type: "USERS_LOGOUT"});
-        //             RESTService.logout();
-        //             history.push('/Login');  //home page after session expire
-        //
-        //         }
-        //     );
 
     }
     render() {

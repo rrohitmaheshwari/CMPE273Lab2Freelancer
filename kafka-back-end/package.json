@@ -19,6 +19,7 @@
     "fs-extra": "^4.0.2",
     "gulp-clean-css": "^3.9.0",
     "kafka-node": "^2.2.3",
+    "max-listeners-exceeded-warning": "0.0.1",
     "mongodb": "^2.2.31",
     "mongoose": "^5.0.12",
     "mongoose-auto-increment": "^5.0.1",

@@ -1,4 +1,4 @@
-var connection = new require('./kafka/Connection');
+var connection = require('./kafka/Connection');
 var mongoose = require('mongoose');
 
 var signup = require('./services/signup');
@@ -50,7 +50,6 @@ db.once('open', function () {
     console.log("Connection Successful!");
 });
 
-
 consumer_signup.on('message', function (message) {
     console.log('message received');
     console.log(JSON.stringify(message.value));
@@ -75,31 +74,6 @@ consumer_signup.on('message', function (message) {
 });
 
 
-consumer_login.on('message', function (message) {
-    console.log('message received');
-    console.log(JSON.stringify(message.value));
-    var data = JSON.parse(message.value);
-    login.handle_request(data.data, function (err, res) {
-        console.log('after handle' + res);
-        var payloads = [
-            {
-                topic: data.replyTo,
-                messages: JSON.stringify({
-                    correlationId: data.correlationId,
-                    data: res
-                }),
-                partition: 0
-            }
-        ];
-        producer.send(payloads, function (err, data) {
-            console.log("Logged In");
-            console.log( payloads);
-            console.log(data);
-        });
-        return;
-    });
-});
-
 
 consumer_post_project.on('message', function (message) {
     console.log('consumer_post_project message received');
@@ -122,6 +96,7 @@ consumer_post_project.on('message', function (message) {
         return;
     });
 });
+
 
 consumer_getUser.on('message', function (message) {
     console.log('consumer_getUser message received');
@@ -409,7 +384,6 @@ consumer_post_bid.on('message', function (message) {
     });
 });
 
-
 consumer_post_freelancer.on('message', function (message) {
     console.log('message received');
     console.log(message.value);
@@ -429,6 +403,33 @@ consumer_post_freelancer.on('message', function (message) {
         producer.send(payloads, function(err, data){
             console.log("data from kafka-");
             console.log(payloads);
+        });
+        return;
+    });
+});
+
+
+
+consumer_login.on('message', function (message) {
+    console.log('message received');
+    console.log(JSON.stringify(message.value));
+    var data = JSON.parse(message.value);
+    login.handle_request(data.data, function (err, res) {
+        console.log('after handle' + res);
+        var payloads = [
+            {
+                topic: data.replyTo,
+                messages: JSON.stringify({
+                    correlationId: data.correlationId,
+                    data: res
+                }),
+                partition: 0
+            }
+        ];
+        producer.send(payloads, function (err, data) {
+            console.log("Logged In");
+            console.log( payloads);
+            console.log(data);
         });
         return;
     });

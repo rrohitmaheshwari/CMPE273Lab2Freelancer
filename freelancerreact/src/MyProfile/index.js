@@ -36,15 +36,17 @@ class MyProfile extends React.Component {
             skills : this.props.user.skills,
             skillsSaved : this.props.user.skills,
             modalIsOpen: false,
+
         };
     }
     componentWillMount(){
         console.log("###Fetch Profile Image in componentWillMount:");
 
-        const { dispatch } = this.props;
-        dispatch(userActions.getByUserName());
         const { user } = this.props;
         this.getProfileFromServer(user.username);
+
+
+
     }
     componentDidMount() {
         var self = this;
@@ -156,6 +158,9 @@ class MyProfile extends React.Component {
             phoneEdit: false
         });
         RESTService.updatePhone(this.state.phone);
+
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
     };
 
     saveName = (event) => {
@@ -164,6 +169,9 @@ class MyProfile extends React.Component {
             nameEdit: false
         });
         RESTService.updateName(this.state.name);
+
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
     };
 
     saveSummary = (event) => {
@@ -172,6 +180,8 @@ class MyProfile extends React.Component {
             summaryEdit: false
         });
         RESTService.updateSummary(this.state.summary);
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
     };
 
     saveAboutMe = (event) => {
@@ -180,6 +190,8 @@ class MyProfile extends React.Component {
             aboutMeEdit: false
         });
         RESTService.updateAboutMe(this.state.aboutMe);
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
     };
 
     getProfileFromServer(username){
@@ -200,6 +212,10 @@ class MyProfile extends React.Component {
             skillsSaved: this.refs.skills.value
         });
         RESTService.updateSkills(this.refs.skills.value);
+
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
+
     };
 
     logout = (event) => {
@@ -208,6 +224,8 @@ class MyProfile extends React.Component {
     };
 
     render() {
+
+
         const { user } = this.props;
         const { isEdit, aboutMeEdit, summaryEdit, profileImg, skillsSaved, nameEdit, phoneEdit } = this.state;
         console.log("##state values");

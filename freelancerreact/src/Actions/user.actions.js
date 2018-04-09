@@ -26,6 +26,7 @@ function login(username, password) {
                     console.log(user);
                     dispatch(success(user));
                     dispatch({type: "HOME"});
+                    dispatch(userActions.getByUserName());
                     history.push('/HomePage');  //home page after login
                 },
                 error => {

@@ -115,11 +115,8 @@ class PostProject extends React.Component {
         let date    = this.state.completeByDate.format("YYYY-MM-DD");
         let file    = this.state.projectFiles;
 
-        skills = skills.split(' ').join(', ');
-        if(skills.trim().startsWith(','))
-            skills = skills.slice(1, skills.length);
-        if(skills.trim().endsWith(','))
-            skills = skills.slice(0, skills.length - 1);
+        skills = skills.trim();
+
 
         if (name && desc && skills) {
 

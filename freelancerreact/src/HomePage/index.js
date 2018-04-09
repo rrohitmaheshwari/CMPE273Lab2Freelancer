@@ -17,7 +17,9 @@ class HomePage extends React.Component {
 
         this.state = {
             currentPageNumber: 1,
-            itemsPerPage: 10
+            itemsPerPage: 1,
+
+
         };
     }
 
@@ -70,7 +72,8 @@ class HomePage extends React.Component {
             const indexOfLastItem = currentPageNumber * itemsPerPage;
             const indexOfFirstItem = indexOfLastItem - itemsPerPage;
             currentItems = homecontent.payload.result.slice(indexOfFirstItem, indexOfLastItem);
-
+            console.log(this.state.currentPageNumber);
+        console.log((this.state.currentPageNumber === 1));
             // Logic for displaying page numbers
             for (let i = 1; i <= Math.ceil(homecontent.payload.result.length / itemsPerPage); i++) {
                 pageNumbers.push(i);
@@ -79,9 +82,13 @@ class HomePage extends React.Component {
 
         const renderPageNumbers = pageNumbers.map(number => {
             return (
-                <li key={number} id={number}>
-                    <a onClick = {() => this.handleChangePage(number)}> {number} </a>
-                </li>
+
+            <li key={number} id={number} className={
+                (this.state.currentPageNumber === number)
+                && 'active'
+            }>
+                <a onClick={() => this.handleChangePage(number)}> {number} </a>
+            </li>
             );
         });
         return (
@@ -170,7 +177,7 @@ class HomePage extends React.Component {
                                     </div>
                                 </div>
                                 <div className="pagination">
-                                    <ul id="page-numbers">
+                                    <ul id="page-numbers" className="pagination">
                                         {renderPageNumbers}
                                     </ul>
                                 </div>
