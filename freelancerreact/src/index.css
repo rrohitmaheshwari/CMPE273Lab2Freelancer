@@ -590,23 +590,21 @@ tr:hover {
     padding: 5px;
 }
 
-.FreeLancerIconDashboard{
+.FreeLancerIconDashboard {
     width: 10%;
     margin-right: 25px;
 }
 
-.noProject{
-    display:flex;
-    padding:10px;
+.noProject {
+    display: flex;
+    padding: 10px;
 }
 
-
-p{
-    margin-bottom:0px !important;
+p {
+    margin-bottom: 0px !important;
 }
 
-
-.bidtablerow{
+.bidtablerow {
     height: 117px;
 }
 
@@ -661,21 +659,22 @@ p{
 }
 
 .pp-big {
-    background: rgba(216,216,216,.3);
-    transform: translate(100px,-100px) rotate(45deg);
+    background: rgba(216, 216, 216, .3);
+    transform: translate(100px, -100px) rotate(45deg);
 }
 
 .pp-medium {
-    background: rgba(216,216,216,.3);
-    transform: translate(-30px,-150px) rotate(45deg);
+    background: rgba(216, 216, 216, .3);
+    transform: translate(-30px, -150px) rotate(45deg);
 }
 
 .pp-small {
-    background: rgba(216,216,216,.3);
+    background: rgba(216, 216, 216, .3);
     height: 30px;
-    transform: translate(-300px,-90px) rotate(45deg);
+    transform: translate(-300px, -90px) rotate(45deg);
     width: 30px;
 }
+
 /* Shape End */
 
 /* Header Start */
@@ -714,6 +713,7 @@ p{
     margin-bottom: 0;
 
 }
+
 /* Header End */
 
 /* Form Start */
@@ -1056,6 +1056,7 @@ p{
     display: inline-block;
     width: 103.1px;
 }
+
 .select-fields-fixed-proj {
     width: 386.9px;
 }
@@ -1064,6 +1065,7 @@ p{
     display: inline-block;
     width: 140.033px;
 }
+
 .select-fields-hourly-proj {
     width: 349.967px
 }
@@ -1084,10 +1086,6 @@ p{
     line-height: 1.53;
     margin-bottom: 0;
 }
-
-
-
-
 
 .btn-primary:hover {
     background: #f77d0e;
@@ -1123,6 +1121,7 @@ p{
     text-decoration: none;
     border-color: transparent;
 }
+
 .btn-xlarge:focus {
     outline-color: #aaa !important;
     box-shadow: none;
@@ -1291,8 +1290,6 @@ p{
     word-break: break-all;
 }
 
-
-
 /* Table Upload Start */
 
 /* Error Start */
@@ -1310,21 +1307,48 @@ p{
     color: #eb3730;
     font-size: 18px;
 }
+
 /* Error End */
 
-.Paddingleft100{
+.Paddingleft100 {
     padding-left: 10%;
 }
 
-.searchbar{
-     float: right;
+.searchbar {
+    float: right;
     box-sizing: border-box;
     border: 2px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
     background-color: white;
-    padding: 5px 7px 5px 9px;
+    padding: 7px 7px 5px 9px;
 }
+
 /*button*/
 
+body select {
+    display: block;
+    padding: 10px 70px 10px 13px !important;
+    max-width: 100%;
+    height: auto !important;
+    border: 1px solid #e3e3e3;
+    border-radius: 3px;
+    background: url("https://image.ibb.co/iMeAJv/selectbox_arrow.png") right center no-repeat;
+    background-color: #fff;
+    color: #444444;
+    font-size: 12px;
+    line-height: 16px !important;
+    appearance: none; /* this is must */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
 
+/* body select.select_box option */
+body select option {
+    padding: 0 4px;
+}
+
+
+select:disabled::-ms-expand {
+    background: #f60;
+}

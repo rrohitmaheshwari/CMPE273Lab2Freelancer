@@ -10,7 +10,7 @@ function handle_request(msg, callback) {
         {
             $set: {
                 "freelancer_files": msg.request.filenames+",",
-                "status": 'Submited'
+                "status": 'Submitted'
             }
         },
 

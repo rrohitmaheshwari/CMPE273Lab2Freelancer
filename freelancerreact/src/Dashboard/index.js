@@ -14,11 +14,14 @@ class DashboardPage extends React.Component {
             my_project_details_status: false,
             my_bid_details: [],
             my_bid_status: false,
-            my_project_as_freelancer:[],
+            my_project_as_freelancer: [],
             my_project_as_freelancer_status: false,
             my_project_details_master: [],
             my_bid_details_master: [],
             my_project_as_freelancer_master: [],
+            value_tab1: "All",
+            value_tab2: "All",
+            value_tab3: "All",
         }
 
 
@@ -65,12 +68,11 @@ class DashboardPage extends React.Component {
 
 
                     // this.setState({my_project_as_freelancer: response.result});
-                    var temp_array=[];
-                    var j=0;
+                    var temp_array = [];
+                    var j = 0;
                     for (var i = 0; i < response.result.length; i++) {
-                        if(response.result[i].freelancer_username === user.username)
-                        {
-                            temp_array[j]=response.result[i]
+                        if (response.result[i].freelancer_username === user.username) {
+                            temp_array[j] = response.result[i]
                             j++;
                         }
                     }
@@ -117,8 +119,9 @@ class DashboardPage extends React.Component {
     }
 
 
-    handleInputChange_tableMyProjects(e){
+    handleInputChange_tableMyProjects(e) {
         e.preventDefault();
+this.setState({value_tab1:"All"});
         console.log(e.target.value);
 
         var temp_array = [];
@@ -136,24 +139,26 @@ class DashboardPage extends React.Component {
 
     handleInputChange_tablebid(e) {
         e.preventDefault();
+        this.setState({value_tab2:"All"});
         console.log(e.target.value);
 
-            var temp_array = [];
+        var temp_array = [];
 
-            var j = 0;
-            for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
-                if (this.state.my_bid_details_master[i].title.includes(e.target.value)) {
-                    temp_array[j] = this.state.my_bid_details_master[i]
-                    j++;
-                }
+        var j = 0;
+        for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
+            if (this.state.my_bid_details_master[i].title.includes(e.target.value)) {
+                temp_array[j] = this.state.my_bid_details_master[i]
+                j++;
             }
-            this.setState({my_bid_details: temp_array});
+        }
+        this.setState({my_bid_details: temp_array});
 
 
     }
 
-    handleInputChange_tablefreelancer(e){
+    handleInputChange_tablefreelancer(e) {
         e.preventDefault();
+        this.setState({value_tab3:"All"});
         console.log(e.target.value);
 
         var temp_array = [];
@@ -169,6 +174,161 @@ class DashboardPage extends React.Component {
     }
 
 
+    handleChange_select1(event) {
+        event.preventDefault();
+        document.getElementById('Search1').value = "";
+
+        this.setState({value_tab1:event.target.value});
+        if (event.target.value === "All") {
+            this.setState({my_project_details: this.state.my_project_details_master});
+
+
+        }
+        else if (event.target.value === "Open") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_details_master.length; i++) {
+               if (this.state.my_project_details_master[i]._id.status==="Open") {
+                    temp_array[j] = this.state.my_project_details_master[i]
+                    j++;
+               }
+            }
+            this.setState({my_project_details: temp_array});
+
+        }
+        else if (event.target.value === "Assigned") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_details_master.length; i++) {
+                if (this.state.my_project_details_master[i]._id.status==="Assigned") {
+                    temp_array[j] = this.state.my_project_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_project_details: temp_array});
+
+        }
+        else if (event.target.value === "Submitted") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_details_master.length; i++) {
+                if (this.state.my_project_details_master[i]._id.status==="Submitted") {
+                    temp_array[j] = this.state.my_project_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_project_details: temp_array});
+
+        }
+
+    }
+
+
+
+    handleChange_select2(event) {
+        event.preventDefault();
+        document.getElementById('Search2').value = "";
+
+        this.setState({value_tab2:event.target.value});
+        if (event.target.value === "All") {
+            this.setState({my_bid_details: this.state.my_bid_details_master});
+
+
+        }
+        else if (event.target.value === "Open") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
+                if (this.state.my_bid_details_master[i].status==="Open") {
+                    temp_array[j] = this.state.my_bid_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_bid_details: temp_array});
+
+        }
+        else if (event.target.value === "Assigned") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
+                if (this.state.my_bid_details_master[i].status==="Assigned") {
+                    temp_array[j] = this.state.my_bid_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_bid_details: temp_array});
+
+        }
+        else if (event.target.value === "Submitted") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
+                if (this.state.my_bid_details_master[i].status==="Submitted") {
+                    temp_array[j] = this.state.my_bid_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_bid_details: temp_array});
+
+        }
+
+    }
+
+
+
+    handleChange_select3(event) {
+        event.preventDefault();
+        document.getElementById('Search3').value = "";
+
+        this.setState({value_tab3:event.target.value});
+        if (event.target.value === "All") {
+            this.setState({my_project_as_freelancer: this.state.my_project_as_freelancer_master});
+
+
+        }
+
+        else if (event.target.value === "Assigned") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_as_freelancer_master.length; i++) {
+                if (this.state.my_project_as_freelancer_master[i].status==="Assigned") {
+                    temp_array[j] = this.state.my_project_as_freelancer_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_project_as_freelancer: temp_array});
+
+        }
+        else if (event.target.value === "Submitted") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_as_freelancer_master.length; i++) {
+                if (this.state.my_project_as_freelancer_master[i].status==="Submitted") {
+                    temp_array[j] = this.state.my_project_as_freelancer_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_project_as_freelancer: temp_array});
+
+        }
+
+    }
 
     render() {
 
@@ -179,17 +339,29 @@ class DashboardPage extends React.Component {
 
                 <div className="jumbotron">
                     <div className="col-sm-8 col-sm-offset-2">
-                        <div className="col-md-10 col-md-offset-0">
+                        <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> My Projects</span>
                         </div>
 
-                        <div className="col-md-2 col-md-offset-0" >
+                        <div className="col-md-2 col-md-offset-0">
+                            <div class="custom-select">
+                                <select value={this.state.value_tab1} onChange={this.handleChange_select1.bind(this)} >
+                                    <option value="All">All</option>
+                                    <option value="Open">Open</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Submitted">Submitted</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="col-md-2 col-md-offset-0">
                             {this.state.my_project_details_status &&
                             <input
                                 placeholder="Search..."
                                 ref={input => this.search = input}
                                 className={'searchbar'}
                                 onChange={this.handleInputChange_tableMyProjects.bind(this)}
+                                id={'Search1'}
                             />
                             }
                         </div>
@@ -242,8 +414,10 @@ class DashboardPage extends React.Component {
 
                                         {this.state.my_project_details.map((data) =>
                                             <tr key={data._id.id}>
-                                                <td><img className="FreeLancerIconDashboard" src={Icon} alt="FreelancerIcon"/>
-                                                    <a href={`/HireProject?project_id=${data._id.id}`}>{data._id.title}</a></td>
+                                                <td><img className="FreeLancerIconDashboard" src={Icon}
+                                                         alt="FreelancerIcon"/>
+                                                    <a href={`/HireProject?project_id=${data._id.id}`}>{data._id.title}</a>
+                                                </td>
                                                 <td>{Number(data.avg_bid).toFixed(2)}</td>
                                                 <td>{data._id.complete_by}</td>
                                                 <td>{data._id.status}</td>
@@ -275,9 +449,20 @@ class DashboardPage extends React.Component {
                     </div>
 
                     <div className="col-sm-8 col-sm-offset-2">
-                        <div className="col-md-10 col-md-offset-0">
+                        <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> Projects I have bid on</span>
                         </div>
+                        <div className="col-md-2 col-md-offset-0">
+                            <div class="custom-select">
+                                <select value={this.state.value_tab2} onChange={this.handleChange_select2.bind(this)} >
+                                    <option value="All">All</option>
+                                    <option value="Open">Open</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Submitted">Submitted</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div className="col-md-2 col-md-offset-0">
                             {this.state.my_bid_status &&
                             <input
@@ -285,6 +470,7 @@ class DashboardPage extends React.Component {
                                 ref={input => this.search = input}
                                 className={'searchbar'}
                                 onChange={this.handleInputChange_tablebid.bind(this)}
+                                id={'Search2'}
                             />
                             }
                         </div>
@@ -334,9 +520,12 @@ class DashboardPage extends React.Component {
 
                                         {this.state.my_bid_details.map((data) =>
                                             <tr key={data._id}>
-                                                <td><img className="FreeLancerIconDashboard" src={Icon} alt="FreelancerIcon"/>
+                                                <td><img className="FreeLancerIconDashboard" src={Icon}
+                                                         alt="FreelancerIcon"/>
                                                     <a href={`/BidProject?project_id=${data._id}`}>{data.title}</a></td>
-                                                <td><a href={`/ViewProfilePage/${data.emp_username}`}>@{data.emp_username}</a></td>
+                                                <td><a
+                                                    href={`/ViewProfilePage/${data.emp_username}`}>@{data.emp_username}</a>
+                                                </td>
                                                 <td>{Number(data.avg_bid).toFixed(2)}</td>
                                                 <td>{data.bids.bid_price}</td>
                                                 <td>{data.status}</td>
@@ -353,18 +542,25 @@ class DashboardPage extends React.Component {
                             </div>
 
 
-
-
-
-
                         </div>
                     </div>
 
 
                     <div className="col-sm-8 col-sm-offset-2">
-                        <div className="col-md-10 col-md-offset-0">
+                        <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> Projects I am working on as Freelancer</span>
                         </div>
+
+                        <div className="col-md-2 col-md-offset-0">
+                            <div class="custom-select">
+                                <select value={this.state.value_tab3} onChange={this.handleChange_select3.bind(this)} >
+                                    <option value="All">All</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Submitted">Submitted</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div className="col-md-2 col-md-offset-0">
                             {this.state.my_project_as_freelancer_status &&
                             <input
@@ -372,6 +568,7 @@ class DashboardPage extends React.Component {
                                 ref={input => this.search = input}
                                 className={'searchbar'}
                                 onChange={this.handleInputChange_tablefreelancer.bind(this)}
+                                id={'Search3'}
                             />
                             }
                         </div>
@@ -421,9 +618,12 @@ class DashboardPage extends React.Component {
 
                                         {this.state.my_project_as_freelancer.map((data) =>
                                             <tr key={data._id}>
-                                                <td><img className="FreeLancerIconDashboard" src={Icon} alt="FreelancerIcon"/>
+                                                <td><img className="FreeLancerIconDashboard" src={Icon}
+                                                         alt="FreelancerIcon"/>
                                                     <a href={`/BidProject?project_id=${data._id}`}>{data.title}</a></td>
-                                                <td><a href={`/ViewProfilePage/${data.emp_username}`}>@{data.emp_username}</a></td>
+                                                <td><a
+                                                    href={`/ViewProfilePage/${data.emp_username}`}>@{data.emp_username}</a>
+                                                </td>
                                                 <td>{Number(data.avg_bid).toFixed(2)}</td>
                                                 <td>{data.bids.bid_price}</td>
                                                 <td>Assigned to me</td>
@@ -438,10 +638,6 @@ class DashboardPage extends React.Component {
 
                                 </div>
                             </div>
-
-
-
-
 
 
                         </div>
