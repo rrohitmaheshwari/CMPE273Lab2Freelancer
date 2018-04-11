@@ -56,15 +56,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //method to serialize user for storage
-passport.serializeUser(function(user, done) {
-    done(null, user._id);
+passport.serializeUser(function(username, done) {
+    done(null, username);
 });
 
 // method to de-serialize back for auth
-passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-        done(err, user);
-    });
+passport.deserializeUser(function(username, done) {
+
+    done(null, username);
+
 });
 
 

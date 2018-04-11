@@ -6,6 +6,7 @@ import {userActions} from "../Actions";
 import ContentEditable from 'react-contenteditable';
 import $ from "jquery";
 import {RESTService} from "../API";
+import ProfileImage from '../Images/ProfileImage.png';
 
 //import Modal from 'react-modal';
 
@@ -32,7 +33,7 @@ class MyProfile extends React.Component {
             phone: this.props.user.phone,
             phoneSaved: this.props.user.phone,
             phoneEdit: false,
-            profileImg: "",
+            profileImg: "http://localhost:3001/ProfileImage/"+this.props.user.username+".jpg",
             skills : this.props.user.skills,
             skillsSaved : this.props.user.skills,
             modalIsOpen: false,
@@ -40,10 +41,7 @@ class MyProfile extends React.Component {
         };
     }
     componentWillMount(){
-        console.log("###Fetch Profile Image in componentWillMount:");
-
-        const { user } = this.props;
-        this.getProfileFromServer(user.username);
+        console.log("inside My Profile page");
 
 
 
@@ -64,7 +62,7 @@ class MyProfile extends React.Component {
             if( input.length ) {
                 input.val(log);
             } else {
-                if( log ) alert(log);
+
             }
         });
 
@@ -90,8 +88,8 @@ class MyProfile extends React.Component {
             profileImg : this.img
         });
         RESTService.sendFile(this.imgFile);
-        const { user } = this.props;
-        this.getProfileFromServer(user.username);
+        const { dispatch } = this.props;
+        dispatch(userActions.getByUserName());
     };
 
     handleChangePhone = (event) => {
@@ -194,16 +192,6 @@ class MyProfile extends React.Component {
         dispatch(userActions.getByUserName());
     };
 
-    getProfileFromServer(username){
-        RESTService.getProfileImage(username).then((res) => {
-            console.log("###inside response:");
-            // var base64 = new Buffer(res.body, 'binary').toString('base64');
-            // console.log(base64);
-            // console.log(res);
-            // console.log(res.img);
-            this.setState({profileImg : res.img})
-        });
-    }
 
     saveSkills = (event) => {
         event.preventDefault();
@@ -229,8 +217,6 @@ class MyProfile extends React.Component {
         const { user } = this.props;
         const { isEdit, aboutMeEdit, summaryEdit, profileImg, skillsSaved, nameEdit, phoneEdit } = this.state;
         console.log("##state values");
-        // console.log(profileImg);
-        var imgSrc = profileImg ? 'data:image/jpeg;base64,' + profileImg : staticImg;
         console.log("###profile-image from state");
 
         return (
@@ -246,7 +232,15 @@ class MyProfile extends React.Component {
                                             <div className="profile-avatar-image-uploader">
                                                 <div className="profile-avatar-image-wrapper">
                                                     <div className="profile-avatar-image-done">
-                                                        <img className="avatar-image" src={imgSrc} alt="Profile"/>
+
+                                                        <img className="avatar-image"
+                                                             src={this.state.profileImg}
+                                                             onError={(e) => {
+                                                                 e.target.src = ProfileImage
+                                                             }}
+                                                             alt="Profile"
+                                                        />
+
                                                         <a className="picture-upload-trigger" data-toggle="modal" data-target="#myModal" href="#">
                                                             <span className="picture-upload-trigger-inner fa fa-camera">
                                                             </span>
@@ -475,13 +469,12 @@ class MyProfile extends React.Component {
                             <div className="modal-body">
                                 <div className="input-group">
                                     <span className="input-group-btn">
-                                        <span className="btn btn-secondary btn-file">
-                                            Browse… <input type="file" id="imgInp" />
+                                        <span className="btn btn-secondary btn-file"><input type="file" id="imgInp" accept=".jpg" />
                                         </span>
                                     </span>
-                                    <input type="text" className="form-control" readOnly/>
+
                                 </div>
-                                <img id='img-upload' alt="Upload"/>
+                                <img id='img-upload' alt=""/>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.handleChangeImg}>Save</button>

@@ -3,6 +3,15 @@ import {connect} from 'react-redux';
 import {history} from "../Helpers";
 import ProfileImage from '../Images/ProfileImage.png';
 import {RESTService} from "../API";
+import filesize from "filesize";
+import Dropzone             from 'react-dropzone';
+
+
+import plusIcon             from '../Images/plus_icon.png';
+import uploadIcon             from '../Images/upload_file.png';
+import {userActions} from "../Actions";
+import Alert from "react-s-alert";
+
 
 const queryString = require('query-string');
 
@@ -15,16 +24,17 @@ class BidProject extends React.Component {
             bid_button: false,
             project_details: {
 
-        "_id":{  "project_id": '',
-                "emp_username": '',
-                "title": '',
-                "description": '',
-                "budget_range": '',
-                "skills_req": '',
-                "complete_by": '',
-                "filenames": '',
-                "name": ''
-            }
+                "_id": {
+                    "project_id": '',
+                    "emp_username": '',
+                    "title": '',
+                    "description": '',
+                    "budget_range": '',
+                    "skills_req": '',
+                    "complete_by": '',
+                    "filenames": '',
+                    "name": ''
+                }
             },
             bid_table_data: {},
             bid_header: {
@@ -36,50 +46,57 @@ class BidProject extends React.Component {
             showtable: false,
             bid_price: '0',
             bid_date: '0',
-            Project_Fee:'0',
-            Freelancer_Fees:'0',
-            Total_Bid:'0',
-            filenames:[]
+            Project_Fee: '0',
+            Freelancer_Fees: '0',
+            Total_Bid: '0',
+            filenames: [],
+            sort: {
+                column: null,
+                direction: 'desc',
+            },
+            freelancer_assigned:false,
+            isUploaded          : false,
+            projectFiles        : [],
         };
         this.handleChange = this.handleChange.bind(this);
     };
 
     handleChange(e) {
 
-        const { name, value } = e.target;
-        this.setState({ [name]: value });
+        const {name, value} = e.target;
+        this.setState({[name]: value});
 
 
-        var bid= this.refs.bid_price.value;
-        var day=this.refs.bid_date.value;
-        console.log("bid:"+bid);
+        var bid = this.refs.bid_price.value;
+        var day = this.refs.bid_date.value;
+        console.log("bid:" + bid);
 
-        console.log("day:"+day);
+        console.log("day:" + day);
 
 
-        if(bid!=='' && day!=='')
-        {
-            this.setState({ Project_Fee: (bid/day).toFixed(2) });
-            this.setState({ Freelancer_Fees: (bid*0.1).toFixed(2) });
-            this.setState({ Total_Bid: (bid*1.1).toFixed(2) });
+        if (bid !== '' && day !== '') {
+            this.setState({Project_Fee: (bid / day).toFixed(2)});
+            this.setState({Freelancer_Fees: (bid * 0.1).toFixed(2)});
+            this.setState({Total_Bid: (bid * 1.1).toFixed(2)});
 
         }
-        else
-        {
+        else {
 
-            this.setState({ Project_Fee: '0' });
-            this.setState({ Freelancer_Fees: '0' });
-            this.setState({ Total_Bid: '0' });
+            this.setState({Project_Fee: '0'});
+            this.setState({Freelancer_Fees: '0'});
+            this.setState({Total_Bid: '0'});
 
         }
     }
+
     componentWillMount() {
         var parsed = queryString.parse(this.props.location.search);
 
         console.log(parsed.project_id);
         var Project_ID = parsed.project_id;
 
-        const {dispatch} = this.props;
+        const {dispatch,user} = this.props;
+
 
 
         RESTService.getBidDetails(Project_ID)
@@ -87,7 +104,7 @@ class BidProject extends React.Component {
                 response => {
 
                     this.setState({"bid_table_data": response.result});
-                    if (response.result.length > 0  && response.result[0].bids)
+                    if (response.result.length > 0 && response.result[0].bids)
                         this.setState({"showtable": true});
                 },
                 error => {
@@ -110,14 +127,18 @@ class BidProject extends React.Component {
                         history.push('/HomePage');  //home page if no project found
                     }
                     this.setState({"project_details": response.result[0]});
-                    if(this.state.project_details._id.filenames && this.state.project_details._id.filenames.indexOf(",") > 0)
-                    this.setState({"filenames": this.state.project_details._id.filenames.split(",")});
+                    if (this.state.project_details._id.filenames && this.state.project_details._id.filenames.indexOf(",") > 0)
+                        this.setState({"filenames": this.state.project_details._id.filenames.split(",")});
                     else
-                    this.setState({"filenames": []});
+                        this.setState({"filenames": []});
                     console.log("this.state");
                     console.log(this.state);
                     console.log(this.state.filenames);
                     console.log(this.state.project_details);
+                    if(this.state.project_details._id.freelancer_username === user.username)
+                    {
+                        this.setState({freelancer_assigned:true});
+                    }
                 },
                 error => {
                     console.log("Error/fetchHomeProject:");
@@ -131,9 +152,74 @@ class BidProject extends React.Component {
             );
 
 
-
     }
 
+    onDrop = (acceptedFiles, rejectedFiles) => {
+
+        var projectFiles = this.state.projectFiles;
+        projectFiles.push(acceptedFiles);
+        this.setState({
+            projectFiles: projectFiles,
+            isUploaded : true
+        });
+    }
+
+    handleDeleteFile = (event) => {
+
+        event.preventDefault();
+
+        var fileName = event.target.value;
+        var oldProjectFiles = this.state.projectFiles;
+        var newProjectFiles = [];
+        for(let position = 0; position < oldProjectFiles.length; position++) {
+            if (oldProjectFiles[position][0].name === fileName) {
+                newProjectFiles = oldProjectFiles.splice(position, 1);
+            }
+        }
+
+        this.setState({ isSubmitted: false });
+
+        if(!newProjectFiles) {
+            this.setState({
+                projectFiles : newProjectFiles
+            });
+        }
+    }
+
+
+    onSort = (column) => (e) => {
+        console.log("clc");
+        const direction = this.state.sort.column ? (this.state.sort.direction === 'asc' ? 'desc' : 'asc') : 'desc';
+        const sortedData = this.state.bid_table_data.sort((a, b) => {
+            if (column === 'Bid Price') {
+                const nameA = a.bids.bid_price; // ignore upper and lowercase
+                const nameB = b.bids.bid_price; // ignore upper and lowercase
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                // names must be equal
+                return 0;
+            } else {
+                return a.contractValue - b.contractValue;
+            }
+        });
+
+        if (direction === 'desc') {
+            sortedData.reverse();
+        }
+
+        this.setState({
+            bid_table_data: sortedData,
+            sort: {
+                column,
+                direction,
+            }
+        });
+    };
 
 
     handleBidProject(e) {
@@ -149,12 +235,12 @@ class BidProject extends React.Component {
         e.preventDefault();
         const {user} = this.props;
 
-        if(!isNaN(this.state.bid_price) && !isNaN(this.state.bid_date) && this.state.bid_price!=='' && this.state.bid_date!=='') {
+        if (!isNaN(this.state.bid_price) && !isNaN(this.state.bid_date) && this.state.bid_price !== '' && this.state.bid_date !== '') {
             var insert_Data = {
-                name : user.name,
-                project_id : this.state.project_details._id.id,
-                bid_price : this.state.bid_price,
-                days_req : this.state.bid_date
+                name: user.name,
+                project_id: this.state.project_details._id.id,
+                bid_price: this.state.bid_price,
+                days_req: this.state.bid_date
             }
             console.log(insert_Data);
             RESTService.postBid(insert_Data)
@@ -173,6 +259,81 @@ class BidProject extends React.Component {
         } else {
             window.alert('Invalid Input!');
         }
+    }
+
+
+    handleSubmit = (event) => {
+
+        event.preventDefault();
+
+        this.setState({ isSubmitted: true });
+
+
+        let file    = this.state.projectFiles;
+
+
+
+
+
+
+            let filenames = "";
+            if(file.length > 0) {
+                filenames = this.uploadFiles(file);
+            }
+
+            const project = {
+                id              :  this.state.project_details._id.id,
+                filenames       : filenames,
+            };
+
+
+            RESTService.submitProject(project)
+                .then(
+                    response => {
+                        console.log(response.data.message);
+
+
+
+                        window.alert(response.data.message);
+                    },
+                    error => {
+                        //  dispatch(alertActions.projectPostError(error.data.message));
+                    }
+                );
+
+
+            //history.push("/HomePage");
+
+    }
+
+    uploadFiles = (files) => {
+        const uploadFiles = new FormData();
+        var filenames = "";
+        for (let index = 0; index < files.length; index++) {
+            if(index === files.length-1) {
+                filenames = filenames.concat(files[index][0].name);
+            }
+            else {
+                filenames = filenames.concat(files[index][0].name + ",");
+            }
+            uploadFiles.append("file", files[index][0]);
+        }
+
+        RESTService.uploadFile(uploadFiles)
+            .then(
+                response => {
+                    console.log(response.data.message);
+
+                },
+                error => {
+                    console.log(error);
+                }
+            )
+
+
+
+
+        return filenames;
     }
 
     render() {
@@ -246,7 +407,8 @@ class BidProject extends React.Component {
 
                                                 <span className="input-group">
                                             <span className="add-on">$</span>
-                                            <input className="BidProposal-form-input" ref="bid_price" name="bid_price" type="text" placeholder="0"  onChange={this.handleChange}/>
+                                            <input className="BidProposal-form-input" ref="bid_price" name="bid_price"
+                                                   type="text" placeholder="0" onChange={this.handleChange}/>
                                             <span className="add-on">USD</span>
                                         </span>
                                                 <br/>
@@ -260,7 +422,8 @@ class BidProject extends React.Component {
 
                                                 <span className="input-group">
                                             <span className="add-on"> </span>
-                                            <input className="BidProposal-form-input" ref="bid_date" name="bid_date" type="text"  placeholder="0"  onChange={this.handleChange}/>
+                                            <input className="BidProposal-form-input" ref="bid_date" name="bid_date"
+                                                   type="text" placeholder="0" onChange={this.handleChange}/>
                                             <span className="add-on">Days</span>
                                         </span>
                                                 <br/>
@@ -304,7 +467,7 @@ class BidProject extends React.Component {
                                                 <span><em>Your Total Bid    </em></span>
                                             </div>
                                             <div className="col-md-7 col-md-offset-0">
-                                                <b>${this.state.Your_Total_Bid} USD</b>
+                                                <b>${this.state.Total_Bid} USD</b>
                                             </div>
                                         </div>
 
@@ -317,7 +480,8 @@ class BidProject extends React.Component {
                                             <div className="col-md-6 col-md-offset-7">
                                                 <button className="btn btn-primary"
                                                         id="BidProjectButtonProjectDetails"
-                                                        onClick={this.handleBid.bind(this)}>Place Bid</button>
+                                                        onClick={this.handleBid.bind(this)}>Place Bid
+                                                </button>
                                                 <a onClick={this.handleBidProject.bind(this)}>Cancel</a>
                                                 <br/>
                                             </div>
@@ -344,7 +508,8 @@ class BidProject extends React.Component {
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Employer</span>
                                         <br/>
-                                        <span>{this.state.project_details.name}<br/><a href={`/ViewProfilePage/${this.state.project_details._id.emp_username}`}>@{this.state.project_details._id.emp_username}</a></span>
+                                        <span>{this.state.project_details.name}<br/><a
+                                            href={`/ViewProfilePage/${this.state.project_details._id.emp_username}`}>@{this.state.project_details._id.emp_username}</a></span>
                                         <br/>
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Skills Required</span>
@@ -354,12 +519,13 @@ class BidProject extends React.Component {
                                         <span className="ProjectTitleSubheading">Files</span>
                                         <span>{
                                             this.state.filenames.map((data) =>
-                                              <div key={data}>
-                                               <a target="_blank" href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
-                                                  {data}
-                                                </a>
-                                                <br/>
-                                              </div>
+                                                <div key={data}>
+                                                    <a target="_blank"
+                                                       href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
+                                                        {data}
+                                                    </a>
+                                                    <br/>
+                                                </div>
                                             )
 
 
@@ -368,10 +534,11 @@ class BidProject extends React.Component {
 
                                     </div>
                                     <div className="col-sm-4 col-sm-offset-0">
-
-                                        <button className="btn btn-primary" id="BidProjectButtonBig"
-                                                onClick={this.handleBidProject.bind(this)}>Bid On This Project
-                                        </button>
+                                        { !this.state.freelancer_assigned &&
+                                            <button className="btn btn-primary" id="BidProjectButtonBig"
+                                                    onClick={this.handleBidProject.bind(this)}>Bid On This Project
+                                            </button>
+                                        }
                                         <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/><br/> <br/> <br/> <br/> <br/>
                                         <br/> <br/>
                                         <span><b>Project Id:</b></span>{this.state.project_details._id.id}
@@ -380,7 +547,7 @@ class BidProject extends React.Component {
                                 </div>
                             </div>
 
-
+                            {!this.state.freelancer_assigned &&
                             <div className="panel panel-primary" id="shadowpanel">
                                 <div className="BidDetailsTable">
 
@@ -389,7 +556,7 @@ class BidProject extends React.Component {
                                         <tr>
                                             <th>Profile Image</th>
                                             <th>Freelancer Name</th>
-                                            <th>Bid Price</th>
+                                            <th onClick={this.onSort('Bid Price')}>Bid Price</th>
                                             <th>Period Days</th>
                                         </tr>
                                         </thead>
@@ -408,9 +575,14 @@ class BidProject extends React.Component {
                                         {this.state.showtable &&
                                         this.state.bid_table_data.map((data) =>
                                             <tr key={data._id + data.bids.username} className="bidtablerow">
-                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg` } alt={``} onError={(e)=>{e.target.src=ProfileImage}}/></td>
+                                                <td><img className="ProfileImageIcon"
+                                                         src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg`}
+                                                         alt={``} onError={(e) => {
+                                                    e.target.src = ProfileImage
+                                                }}/></td>
                                                 <td><p>{data.bids.name}</p>
-                                                    <a href={`/ViewProfilePage/${data.bids.username}`}>@{data.bids.username}</a></td>
+                                                    <a href={`/ViewProfilePage/${data.bids.username}`}>@{data.bids.username}</a>
+                                                </td>
                                                 <td>{data.bids.bid_price} USD</td>
                                                 <td>{data.bids.days_req} days</td>
                                             </tr>
@@ -418,11 +590,96 @@ class BidProject extends React.Component {
                                         }
 
 
-                                        </tbody>
-                                    </table>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+    }
+
+                            {this.state.freelancer_assigned&&
+
+
+                                <div className="panel panel-primary" id="shadowpanel">
+
+
+
+
+
+                                            <Dropzone
+                                                className = "file-upload-area"
+                                                onDrop    = { (files) => this.onDrop(files) }
+                                            >
+                                                            <span className="btn btn-plain btn-file-uploader">
+                                                                <span><img className="fl-icon-plus" src = { plusIcon } alt="" ></img></span>
+                                                                <span className="file-upload-button-text">Upload File</span>
+                                                            </span>
+                                                <p className="file-upload-text">
+                                                    Drag & drop any images or documents that might be
+                                                    helpful in explaining your project brief here.
+                                                </p>
+                                            </Dropzone>
+                                            {
+                                                this.state.isUploaded &&
+                                                <table className="table-upload">
+                                                    <tbody className="table-upload-body">
+                                                    {
+                                                        this.state.projectFiles.map((data) =>
+                                                            <tr key = {  this.state.projectFiles.indexOf(data) } className="table-upload-row">
+                                                                <td className="table-upload-row-preview">
+                                                                    <img
+                                                                        className = "preview-image"
+                                                                        src = { data[0].type === 'application/pdf' ? uploadIcon : URL.createObjectURL(data[0]) }
+                                                                        alt ="">
+
+                                                                    </img>
+                                                                </td>
+                                                                <td className="table-upload-row-name">
+                                                                                <span>
+                                                                                    { data[0].name }
+                                                                                </span>
+                                                                </td>
+                                                                <td className="table-upload-row-size">
+                                                                    { filesize(data[0].size) }
+                                                                </td>
+                                                                <td className="table-upload-row-delete">
+                                                                    <button
+                                                                        value     = { data[0].name }
+                                                                        className = "btn btn-danger btn-small"
+                                                                        onClick   = { this.handleDeleteFile }
+                                                                    >
+                                                                        <span>Delete</span>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            }
+
+
+
+<div>
+                                        <button className="btn btn-xlarge pp-submit-btn btn-primary"  onClick={this.handleSubmit.bind(this)}>
+                                            <span>Submit</span>
+                                        </button>
+
+</div>
 
                                 </div>
-                            </div>
+                            }
+
+
+
+
+
+
+
+
+
+
+
                         </div>
                     </div>
 

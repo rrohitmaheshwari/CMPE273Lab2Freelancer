@@ -28,10 +28,10 @@ router.get('/', function (req, res, next) {
 
 
 // Get current user details
-router.post('/getUser', isAuthenticated,function(req, res, next) {
+router.post('/getUser', isAuthenticated, function (req, res, next) {
     //setting queue name and payload
     kafka.make_request('getUser_topic', {
-            "username"  : req.session.username,
+            "username": req.session.username,
         }, function (err, results) {
             console.log('in /getUser result');
             console.log(results);
@@ -45,7 +45,7 @@ router.post('/getUser', isAuthenticated,function(req, res, next) {
                     console.log(results.value);
 
                     //success case
-                    res.status(200).send({user : results.value});
+                    res.status(200).send({user: results.value});
                 }
             }
         }
@@ -54,72 +54,115 @@ router.post('/getUser', isAuthenticated,function(req, res, next) {
 
 /* POST user authentication/user login. */
 router.post('/users/authenticate', function (req, res) {
-    passport.authenticate('login', function(err, user) {
-        if(err) {
+    passport.authenticate('login', function (err, user) {
+        if (err) {
             res.status(500).send();
         }
 
-        if(!user) {
+        if (!user) {
             res.statusMessage = "Username does not exist. Please double-check and try again.";
             res.status(400).send();
         }
         else {
-            req.session.username = user.username;
-            console.log(user);
-            console.log("session initilized");
-            res.status(200).send({user:user});
-        }
-    })(req,res);
 
+            req.login(user.username, function (err) {
+                if (err) {
+                    console.log(err);
+                }
+                req.session.username = user.username;
+                console.log(req);
+                console.log("session initilized");
+                res.status(200).send({user: user});
+
+            });
+
+        }
+
+    })(req, res);
 
 
 });
 
 
 /* POST user registration. */
-router.post('/users/register', function(req,res) {
+router.post('/users/register', function (req, res) {
 
-    passport.authenticate('signup', function(err,user,results){
-        if(err){
-            res.status(500).send({user:"Server Error"});
+    passport.authenticate('signup', function (err, user, results) {
+        if (err) {
+            res.status(500).send({user: "Server Error"});
         }
-        if(user === false){
+        if (user === false) {
             console.log("node index.js-");
             console.log(results);
             res.statusMessage = results.value;
             res.status(400).end();
         }
         else {
-            res.status(200).send({user:"User created successfully"});
+            res.status(200).send({user: "User created successfully"});
         }
-    })(req,res);
+    })(req, res);
 
 });
 
 /* POST PROJECT post request*/
-router.post('/project/post-project', function(req,res) {
-
+router.post('/project/post-project', function (req, res) {
 
 
     if (req.session.username) {
-        kafka.make_request('post-project_topic', {"request": req.body,"username":req.session.username}, function (err, results) {
+        kafka.make_request('post-project_topic', {
+            "request": req.body,
+            "username": req.session.username
+        }, function (err, results) {
             console.log('in post-project_topic');
             console.log(results);
             if (err) {
                 console.log("err" + err);
-                res.status(500).send({message:"Server Error!"});
+                res.status(500).send({message: "Server Error!"});
             }
             else {
                 console.log("Fetch Successful!");
-                res.status(200).send({message:"Project Created successfully!"});
+                res.status(200).send({message: "Project Created successfully!"});
 
             }
 
         });
 
     }
-    else
-    {
+    else {
+        console.log("Session expired!");
+        res.statusMessage = "Session expired!";
+        res.status(401).end();
+    }
+
+});
+
+
+
+/* POST Submit request*/
+router.post('/project/submit-project', function (req, res) {
+
+
+    if (req.session.username) {
+        kafka.make_request('submit-project_topic', {
+            "request": req.body,
+            "username": req.session.username
+        }, function (err, results) {
+            console.log('in submit-project_topic');
+            console.log(results);
+            if (err) {
+                console.log("err" + err);
+                res.status(500).send({message: "Server Error!"});
+            }
+            else {
+                console.log("Fetch Successful!");
+                res.status(200).send({message: "Project Submitted successfully!"});
+
+            }
+
+        });
+
+    }
+    else {
         console.log("Session expired!");
         res.statusMessage = "Session expired!";
         res.status(401).end();
@@ -158,11 +201,10 @@ router.post('/home/getdetails', function (req, res) {
         });
 
     }
-    else
-    {
-             console.log("Session expired!");
-            res.statusMessage = "Session expired!";
-            res.status(400).end();
+    else {
+        console.log("Session expired!");
+        res.statusMessage = "Session expired!";
+        res.status(400).end();
     }
 
 });
@@ -173,7 +215,7 @@ function isAuthenticated(req, res, next) {
 
     // CHECK THE USER STORED IN SESSION
     console.log('###isAuthenticated called###');
-    console.log('req.session.username'+req.session.username);
+    console.log('req.session.username' + req.session.username);
 
     if (req.session.username)
         return next();
@@ -183,14 +225,14 @@ function isAuthenticated(req, res, next) {
     res.status(400).end();
 }
 
-router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
+router.post('/user/updateAboutMe', isAuthenticated, function (req, res) {
     console.log('###updateAboutMe called###');
     console.log(req.body);
 
     //setting queue name and payload
     kafka.make_request('updateAboutMe_topic', {
-            "username"  : req.session.username,
-            "about_me"  : req.body.about,
+            "username": req.session.username,
+            "about_me": req.body.about,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -201,7 +243,7 @@ router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'About Me' successfully"});
+                    res.status(200).send({about: "Updated 'About Me' successfully"});
                 }
             }
         }
@@ -209,14 +251,13 @@ router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
 });
 
 
-
-router.post('/user/updateName', isAuthenticated, function(req,res) {
+router.post('/user/updateName', isAuthenticated, function (req, res) {
     console.log('###updateName called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('updateName_topic', {
-            "username"  : req.session.username,
-            "name"      : req.body.name,
+            "username": req.session.username,
+            "name": req.body.name,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -227,7 +268,7 @@ router.post('/user/updateName', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'Name' successfully"});
+                    res.status(200).send({about: "Updated 'Name' successfully"});
                 }
             }
         }
@@ -243,8 +284,8 @@ router.post('/project/getBidDetails', isAuthenticated, function (req, res) {
 
     //setting queue name and payload
     kafka.make_request('project_BidDetails', {
-            "username"      : req.session.username,
-            "project_id"    : req.body.project_id
+            "username": req.session.username,
+            "project_id": req.body.project_id
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -263,22 +304,22 @@ router.post('/project/getBidDetails', isAuthenticated, function (req, res) {
     );
 });
 
-router.post('/getUser', function(req, res, next) {
+router.post('/getUser', function (req, res, next) {
 
-    console.log("req.session.username:"+req.session.username);
-    if(req.session.username) {
+    console.log("req.session.username:" + req.session.username);
+    if (req.session.username) {
         var getUser = "select * from users where username='" + req.session.username + "'";
-        console.log("Query is:"+getUser);
-        mysql.fetchData(function(err,results){
-            if(err){
+        console.log("Query is:" + getUser);
+        mysql.fetchData(function (err, results) {
+            if (err) {
                 throw err;
             }
             else {
-                if(results.length > 0){
+                if (results.length > 0) {
                     console.log("valid Login");
-                    console.log("results[0]:"+results[0]);
+                    console.log("results[0]:" + results[0]);
                     //Assigning the session
-                    res.status(200).send({user : results[0]});
+                    res.status(200).send({user: results[0]});
                 }
                 else {
                     console.log("Invalid Login");
@@ -286,7 +327,7 @@ router.post('/getUser', function(req, res, next) {
                     res.status(400).end();
                 }
             }
-        },getUser);
+        }, getUser);
     } else {
         res.statusMessage = "invalid session";
         res.status(401).end();
@@ -299,8 +340,8 @@ router.get('/project/getprojectdetails', function (req, res) {
 
     console.log(req.body);
     kafka.make_request('project_details', {
-            "username"      : req.session.username,
-            "project_id"    : req.query.project_id
+            "username": req.session.username,
+            "project_id": req.query.project_id
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -320,7 +361,6 @@ router.get('/project/getprojectdetails', function (req, res) {
 });
 
 
-
 router.get('/project/getMyProjectDetails', function (req, res) {
 
 
@@ -328,7 +368,7 @@ router.get('/project/getMyProjectDetails', function (req, res) {
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('dashboard_project_topic', {
-            "username"  : req.session.username,
+            "username": req.session.username,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -336,7 +376,7 @@ router.get('/project/getMyProjectDetails', function (req, res) {
                 //failure case
                 res.statusMessage = "Cannot fetch Projects at the moment";
                 res.status(400).end();
-            }else {
+            } else {
                 if (results.code === 201) {
                     console.log("Fetch Successful!");
                     console.log(results.value);
@@ -354,15 +394,13 @@ router.get('/project/getMyProjectDetails', function (req, res) {
 });
 
 
-
-
 router.get('/project/getMyBidDetails', isAuthenticated, function (req, res) {
 
     console.log('###getMyBidDetails called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('dashboard_project_bids', {
-            "username"  : req.session.username,
+            "username": req.session.username,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -370,7 +408,7 @@ router.get('/project/getMyBidDetails', isAuthenticated, function (req, res) {
                 //failure case
                 res.statusMessage = "Cannot fetch bids at the moment";
                 res.status(400).end();
-            }else {
+            } else {
                 if (results.code === 201) {
                     console.log("Fetch Successful!");
                     console.log(results.value);
@@ -394,7 +432,7 @@ router.get('/project/getbidheader', function (req, res) {
             console.log(results);
             if (err) {
                 console.log("err" + err);
-                res.status(500).send({message:"Server Error!"});
+                res.status(500).send({message: "Server Error!"});
             }
             else {
                 console.log("Fetch Project Details Successful!");
@@ -406,8 +444,7 @@ router.get('/project/getbidheader', function (req, res) {
         });
 
     }
-    else
-    {
+    else {
         console.log("Session expired!");
         res.statusMessage = "Session expired!";
         res.status(400).end();
@@ -448,20 +485,39 @@ router.get('/project/getbidheader', function (req, res) {
 router.post('/project/postFreelancer', isAuthenticated, function (req, res) {
 
     kafka.make_request('post-freelancer_topic', {
-            "username"              : req.session.username,
-            "freelancer_username"   : req.body.data.freelancer_username,
-            "project_id"            : req.body.data.project_id
+            "username": req.session.username,
+            "freelancer_username": req.body.data.freelancer_username,
+            "project_id": req.body.data.project_id
         }, function (err, results) {
-            console.log('in result');
-            console.log(results);
-            if (err) {
+            console.log('postFreelancer');
+
+        console.log(results.value.email);
+
+        var mailOptions = {
+            from: 'do.not.reply.rohit@gmail.com',
+            to: results.value.email,   //change it to actual email id
+            cc: 'rrohit.maheshwari@gmail.com',
+            subject: 'You have been hired',
+            text: 'Go to your Freelancer account for more details!\nProjectID: ' + req.body.data.project_id,
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+
+
+        if (err) {
                 //failure case
                 res.statusMessage = "Error in Hiring Freelancer at the moment. Try again later.";
                 res.status(400).end();
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({message:"Hired freelancer successfully"});
+                    res.status(200).send({message: "Hired freelancer successfully"});
                 }
             }
         }
@@ -469,22 +525,7 @@ router.post('/project/postFreelancer', isAuthenticated, function (req, res) {
 
 
 
-    var mailOptions = {
-        from: 'do.not.reply.rohit@gmail.com',
-        to: 'rrohit.maheshwari@gmail.com',   //change it to actual email id
-        subject: 'You have been hired',
-        text: 'Go to your Freelancer account for more details!\nProjectID: '+req.body.data.project_id,
-    };
-
-    transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
 });
-
 
 
 router.post('/project/postbiddata', isAuthenticated, function (req, res) {
@@ -494,11 +535,11 @@ router.post('/project/postbiddata', isAuthenticated, function (req, res) {
 
     //setting queue name and payload
     kafka.make_request('post-bid_topic', {
-            "username"      : req.session.username,
-            "name"          : req.body.data.name,
-            "project_id"    : req.body.data.project_id,
-            "bid_price"     : req.body.data.bid_price,
-            "days_req"      : req.body.data.days_req
+            "username": req.session.username,
+            "name": req.body.data.name,
+            "project_id": req.body.data.project_id,
+            "bid_price": req.body.data.bid_price,
+            "days_req": req.body.data.days_req,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -509,7 +550,7 @@ router.post('/project/postbiddata', isAuthenticated, function (req, res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({message:"Bid Posted successfully"});
+                    res.status(200).send({message: "Bid Posted successfully"});
                 }
             }
         }
@@ -517,30 +558,26 @@ router.post('/project/postbiddata', isAuthenticated, function (req, res) {
 });
 
 
-
-
-
 router.post('/user/logout', function (req, res) {
 
 
-
     console.log("req.session.username:" + req.session.username);
-    if(req.session.username) {
+    if (req.session.username) {
+        req.logout();
         req.session.destroy();
-        console.log("Session Destroyed!-"+req.session.username);
-        res.status(200).send({ message: "Logout" });
+        console.log("Session Destroyed!-" + req.session.username);
+        res.status(200).send({message: "Logout"});
     } else {
         console.log("Session not found/already destroyed!");
-        res.status(200).send({ message: "Logout" });
+        res.status(200).send({message: "Logout"});
     }
 
 });
 
 
-router.post('/getProfileImg', function(req, res, next) {
-    if(req.session.username) {
-        fs.readFile('/Users/rohit/Documents/GitHub/CMPE273/CMPE273Lab2Freelancer/FreelancerNodeServer/public/ProfileImage/' + req.body.username + '.jpg', function (err, content) {
-            console.log("###img:", content);
+router.post('/getProfileImg', function (req, res, next) {
+    if (req.session.username) {
+        fs.readFile('/public/ProfileImage/' + req.body.username + '.jpg', function (err, content) {
             if (err) {
                 res.writeHead(400, {'Content-type': 'text/html'})
                 console.log(err);
@@ -560,49 +597,49 @@ router.post('/getProfileImg', function(req, res, next) {
         res.status(401).end();
     }
 });
-
-
-router.post('/getOtherUser', function(req, res, next) {
-    //  console.log("req:"+req);
-    console.log("req.session.username:"+req.session.username);
-    if(req.session.username) {
-        var getUser = "select * from users where username='" + req.body.username + "'";
-        console.log("Query is:"+getUser);
-        mysql.fetchData(function(err,results){
-            if(err){
-                throw err;
-            }
-            else {
-                if(results.length > 0){
-                    console.log("valid Login");
-                    console.log("results:"+results);
-                    console.log("results[0]:"+results[0]);
-                    // //Assigning the session
-                    res.status(200).send({user : results[0]});
-                }
-                else {
-                    console.log("Invalid Login");
-                    res.statusMessage = "Username does not exist. Please double-check and try again.";
-                    res.status(400).end();
-                }
-            }
-        },getUser);
-    } else {
-        res.statusMessage = "invalid session";
-        res.status(401).end();
-    }
-});
+//
+//
+// router.post('/getOtherUser', function (req, res, next) {
+//     //  console.log("req:"+req);
+//     console.log("req.session.username:" + req.session.username);
+//     if (req.session.username) {
+//         var getUser = "select * from users where username='" + req.body.username + "'";
+//         console.log("Query is:" + getUser);
+//         mysql.fetchData(function (err, results) {
+//             if (err) {
+//                 throw err;
+//             }
+//             else {
+//                 if (results.length > 0) {
+//                     console.log("valid Login");
+//                     console.log("results:" + results);
+//                     console.log("results[0]:" + results[0]);
+//                     // //Assigning the session
+//                     res.status(200).send({user: results[0]});
+//                 }
+//                 else {
+//                     console.log("Invalid Login");
+//                     res.statusMessage = "Username does not exist. Please double-check and try again.";
+//                     res.status(400).end();
+//                 }
+//             }
+//         }, getUser);
+//     } else {
+//         res.statusMessage = "invalid session";
+//         res.status(401).end();
+//     }
+// });
 
 // User profile update 'About Me' request
-router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
+router.post('/user/updateAboutMe', isAuthenticated, function (req, res) {
 
     console.log('###updateAboutMe called###');
     console.log(req.body);
 
     //setting queue name and payload
     kafka.make_request('updateAboutMe_topic', {
-            "username"  : req.session.username,
-            "about_me"  : req.body.about,
+            "username": req.session.username,
+            "about_me": req.body.about,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -613,7 +650,7 @@ router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'About Me' successfully"});
+                    res.status(200).send({about: "Updated 'About Me' successfully"});
                 }
             }
         }
@@ -621,14 +658,14 @@ router.post('/user/updateAboutMe', isAuthenticated, function(req,res) {
 });
 
 // User profile update 'Name' request
-router.post('/user/updateName', isAuthenticated, function(req,res) {
+router.post('/user/updateName', isAuthenticated, function (req, res) {
 
     console.log('###updateName called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('updateName_topic', {
-            "username"  : req.session.username,
-            "name"      : req.body.name,
+            "username": req.session.username,
+            "name": req.body.name,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -639,7 +676,7 @@ router.post('/user/updateName', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'Name' successfully"});
+                    res.status(200).send({about: "Updated 'Name' successfully"});
                 }
             }
         }
@@ -647,14 +684,14 @@ router.post('/user/updateName', isAuthenticated, function(req,res) {
 });
 
 // User profile update 'Phone' request
-router.post('/user/updatePhone', isAuthenticated, function(req,res) {
+router.post('/user/updatePhone', isAuthenticated, function (req, res) {
 
     console.log('###updatePhone called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('updatePhone_topic', {
-            "username"  : req.session.username,
-            "phone"     : req.body.phone,
+            "username": req.session.username,
+            "phone": req.body.phone,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -665,7 +702,7 @@ router.post('/user/updatePhone', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'Phone' successfully"});
+                    res.status(200).send({about: "Updated 'Phone' successfully"});
                 }
             }
         }
@@ -673,14 +710,14 @@ router.post('/user/updatePhone', isAuthenticated, function(req,res) {
 });
 
 // User profile update 'Summary' request
-router.post('/user/updateSummary', isAuthenticated, function(req,res) {
+router.post('/user/updateSummary', isAuthenticated, function (req, res) {
 
     console.log('###updateSummary called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('updateSummary_topic', {
-            "username"  : req.session.username,
-            "summary"   : req.body.summary,
+            "username": req.session.username,
+            "summary": req.body.summary,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -691,7 +728,7 @@ router.post('/user/updateSummary', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'Summary' successfully"});
+                    res.status(200).send({about: "Updated 'Summary' successfully"});
                 }
             }
         }
@@ -699,14 +736,14 @@ router.post('/user/updateSummary', isAuthenticated, function(req,res) {
 });
 
 // User profile update 'Skills' request
-router.post('/user/updateSkills', isAuthenticated, function(req,res) {
+router.post('/user/updateSkills', isAuthenticated, function (req, res) {
 
     console.log('###updateSkills called###');
     console.log(req.body);
     //setting queue name and payload
     kafka.make_request('updateSkills_topic', {
-            "username"  : req.session.username,
-            "skills"    : req.body.skills,
+            "username": req.session.username,
+            "skills": req.body.skills,
         }, function (err, results) {
             console.log('in result');
             console.log(results);
@@ -717,7 +754,7 @@ router.post('/user/updateSkills', isAuthenticated, function(req,res) {
             } else {
                 if (results.code == 200) {
                     //success case
-                    res.status(200).send({about:"Updated 'Skills' successfully"});
+                    res.status(200).send({about: "Updated 'Skills' successfully"});
                 }
             }
         }
@@ -737,35 +774,33 @@ var storageProjFiles = multer.diskStorage({
 var rootDirectory = "public/project_files/";
 
 var uploadProjFiles = multer({
-    storage : storageProjFiles
+    storage: storageProjFiles
 });
 
 function createDirectory(username) {
-    if (!fs.existsSync(rootDirectory)){
+    if (!fs.existsSync(rootDirectory)) {
         fs.mkdirSync(rootDirectory);
     }
     let directory = rootDirectory + username;
-    if (!fs.existsSync(directory)){
+    if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
     }
     return directory;
 }
 
-router.post('/project/upload-files', uploadProjFiles.any(), function(req, res, next) {
+router.post('/project/upload-files', uploadProjFiles.any(), function (req, res, next) {
     console.log('###/saveProfile');
     console.log(req.session.username);
     console.log(req.body);
-    if(req.session.username) {
+    if (req.session.username) {
         console.log(req.body, 'Body');
         // console.log(req.files, 'files');
-        res.status(200).send({result:"File is uploaded"});
+        res.status(200).send({result: "File is uploaded"});
     } else {
         res.statusMessage = "invalid session";
         res.status(401).end();
     }
 });
-
-
 
 
 var storage = multer.diskStorage({
@@ -781,14 +816,14 @@ var upload = multer({
     storage: storage
 });
 
-router.post('/saveProfile', upload.any(), function(req, res, next) {
+router.post('/saveProfile', upload.any(), function (req, res, next) {
     console.log('###/saveProfile');
     console.log(req.session.username);
     console.log(req.body);
-    if(req.session.username) {
+    if (req.session.username) {
         console.log(req.body, 'Body');
         // console.log(req.files, 'files');
-        res.status(200).send({result:"File is uploaded"});
+        res.status(200).send({result: "File is uploaded"});
     } else {
         res.statusMessage = "invalid session";
         res.status(401).end();

@@ -36,6 +36,8 @@ class App extends React.Component {
         e.preventDefault();
         const {dispatch} = this.props;
         dispatch({type: dispatch_setter});
+
+        dispatch(userActions.getByUserName());
         history.push(push_page);
     }
 

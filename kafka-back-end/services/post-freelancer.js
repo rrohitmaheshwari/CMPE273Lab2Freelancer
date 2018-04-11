@@ -1,4 +1,5 @@
 var Project = require('../model/Project');
+var User = require('../model/user');
 
 function handle_request(msg, callback) {
 
@@ -22,10 +23,26 @@ function handle_request(msg, callback) {
                 console.log(res.value);
                 callback(err, res);
             }
-            res.code = "200";
-            res.value = doc;
-            console.log(doc);
-            callback(null, res);
+
+
+            User.findOne({username: msg.freelancer_username}, function (err, user) {
+                if (err) {
+
+                    res.code = "400";
+                    res.value = "Cannot find freelancer at the moment";
+                    console.log("#######");
+                    console.log(res.value);
+                    callback(err, res);
+                }
+
+                res.code = "200";
+                res.value = user;
+                console.log("**********");
+                console.log(user);
+                callback(null, res);
+            })
+
+
         }
     );
 }

@@ -38,6 +38,10 @@ class HireProject extends React.Component {
             Weekly_Milestone:'0',
             filenames:[],
             project_status: true,
+            sort: {
+                column: null,
+                direction: 'desc',
+            },
         };
 
     };
@@ -109,6 +113,40 @@ console.log("bid details-");
 
 
     }
+
+    onSort = (column) => (e) => {
+        console.log("clc");
+        const direction = this.state.sort.column ? (this.state.sort.direction === 'asc' ? 'desc' : 'asc') : 'desc';
+        const sortedData = this.state.bid_table_data.sort((a, b) => {
+            if (column === 'Bid Price') {
+                const nameA = a.bids.bid_price; // ignore upper and lowercase
+                const nameB = b.bids.bid_price; // ignore upper and lowercase
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                // names must be equal
+                return 0;
+            } else {
+                return a.contractValue - b.contractValue;
+            }
+        });
+
+        if (direction === 'desc') {
+            sortedData.reverse();
+        }
+
+        this.setState({
+            bid_table_data: sortedData,
+            sort: {
+                column,
+                direction,
+            }
+        });
+    };
 
 
     handleSubmit( e) {
@@ -246,7 +284,7 @@ console.log("bid details-");
                                         <tr>
                                             <th>Profile Image</th>
                                             <th>Freelancer Name</th>
-                                            <th>Bid Price</th>
+                                            <th onClick={this.onSort('Bid Price')}>Bid Price</th>
                                             <th>Period Days</th>
                                             <th></th>
                                         </tr>

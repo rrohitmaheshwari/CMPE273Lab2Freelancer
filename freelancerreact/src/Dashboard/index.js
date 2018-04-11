@@ -183,11 +183,12 @@ class DashboardPage extends React.Component {
                             <span className="ProjectTitleBid"> My Projects</span>
                         </div>
 
-                        <div className="col-md-2 col-md-offset-0">
+                        <div className="col-md-2 col-md-offset-0" >
                             {this.state.my_project_details_status &&
                             <input
                                 placeholder="Search..."
                                 ref={input => this.search = input}
+                                className={'searchbar'}
                                 onChange={this.handleInputChange_tableMyProjects.bind(this)}
                             />
                             }
@@ -282,7 +283,7 @@ class DashboardPage extends React.Component {
                             <input
                                 placeholder="Search..."
                                 ref={input => this.search = input}
-
+                                className={'searchbar'}
                                 onChange={this.handleInputChange_tablebid.bind(this)}
                             />
                             }
@@ -369,7 +370,7 @@ class DashboardPage extends React.Component {
                             <input
                                 placeholder="Search..."
                                 ref={input => this.search = input}
-
+                                className={'searchbar'}
                                 onChange={this.handleInputChange_tablefreelancer.bind(this)}
                             />
                             }

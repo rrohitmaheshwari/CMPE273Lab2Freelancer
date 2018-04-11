@@ -17,6 +17,7 @@ var project_details = require('./services/project_details');
 var project_BidDetails = require('./services/project_BidDetails');
 var post_bid = require('./services/post-bid');
 var post_freelancer     = require('./services/post-freelancer');
+var submit_project     = require('./services/submit_project');
 
 
 var producer = connection.getProducer();
@@ -38,6 +39,8 @@ var consumer_project_details = connection.getConsumer('project_details');
 var consumer_project_BidDetails = connection.getConsumer('project_BidDetails');
 var consumer_post_bid = connection.getConsumer('post-bid_topic');
 var consumer_post_freelancer    = connection.getConsumer('post-freelancer_topic');
+var consumer_submit_project    = connection.getConsumer('submit-project_topic');
+
 
 
 // native promises
@@ -415,6 +418,32 @@ consumer_login.on('message', function (message) {
     console.log(JSON.stringify(message.value));
     var data = JSON.parse(message.value);
     login.handle_request(data.data, function (err, res) {
+        console.log('after handle' + res);
+        var payloads = [
+            {
+                topic: data.replyTo,
+                messages: JSON.stringify({
+                    correlationId: data.correlationId,
+                    data: res
+                }),
+                partition: 0
+            }
+        ];
+        producer.send(payloads, function (err, data) {
+            console.log("Logged In");
+            console.log( payloads);
+            console.log(data);
+        });
+        return;
+    });
+});
+
+
+consumer_submit_project.on('message', function (message) {
+    console.log('message received');
+    console.log(JSON.stringify(message.value));
+    var data = JSON.parse(message.value);
+    submit_project.handle_request(data.data, function (err, res) {
         console.log('after handle' + res);
         var payloads = [
             {

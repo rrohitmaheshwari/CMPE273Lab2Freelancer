@@ -21,7 +21,8 @@ var ProjectSchema = new Schema({
     complete_by         : { type: String, trim: true, default: '' },
     filenames           : { type: String, trim: true, default: '' },
     freelancer_username : { type: String, trim: true, default: '' },
-    bids                : [{ type: BidsSchema}]
+    bids                : [{ type: BidsSchema}],
+    freelancer_files           : { type: String, trim: true, default: '' },
 });
 
 let Project = mongoose.model('Project', ProjectSchema,'projects');

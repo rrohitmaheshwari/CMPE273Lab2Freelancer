@@ -28,7 +28,8 @@ export const RESTService = {
     sendFile,
     postProject,
     uploadFile,
-    getByUserName
+    getByUserName,
+    submitProject,
 };
 
 function login(username, password) {
@@ -343,6 +344,11 @@ function updateName(name) {
 
 function postProject(project) {
     let postProjectUrl = api + '/project/post-project';
+    return axiosPost(postProjectUrl, project);
+}
+
+function submitProject(project) {
+    let postProjectUrl = api + '/project/submit-project';
     return axiosPost(postProjectUrl, project);
 }
 

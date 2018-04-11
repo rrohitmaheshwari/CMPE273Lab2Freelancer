@@ -3,6 +3,7 @@ import './viewprofile.css';
 import staticImg from '../Images/ProfileImage.png';
 import {connect} from "react-redux";
 import {RESTService} from "../API";
+import ProfileImage from '../Images/ProfileImage.png';
 
 class ViewProfilePage extends React.Component {
 
@@ -21,7 +22,7 @@ class ViewProfilePage extends React.Component {
         console.log("###this.:" + this.props.match.params.username);
         let username = this.props.match.params.username;
         console.log("this username",username);
-        this.getProfileFromServer(username);
+      //  this.getProfileFromServer(username);
         this.getOtherUser(username);
     }
     componentDidMount() {
@@ -29,10 +30,7 @@ class ViewProfilePage extends React.Component {
     }
 
     getProfileFromServer(username){
-        RESTService.getProfileImage(username).then((res) => {
-            console.log("###inside response:");
-            this.setState({profileImg : res.img})
-        });
+
     }
 
     getOtherUser(username){
@@ -61,7 +59,15 @@ class ViewProfilePage extends React.Component {
                                             <div className="profile-avatar-image-uploader">
                                                 <div className="profile-avatar-image-wrapper">
                                                     <div className="profile-avatar-image-done" >
-                                                        <img className="avatar-image" src={imgSrc} alt="Profile"/>
+
+                                                        <img className="avatar-image"
+                                                             src={`http://localhost:3001/ProfileImage/${profileUser.username}.jpg`}
+                                                             onError={(e) => {
+                                                                 e.target.src = ProfileImage
+                                                             }}
+                                                             alt="Profile"
+                                                        />
+
                                                     </div>
                                                 </div>
                                             </div>
