@@ -598,38 +598,31 @@ router.post('/getProfileImg', function (req, res, next) {
     }
 });
 
-//
-//
-// router.post('/getOtherUser', function (req, res, next) {
-//     //  console.log("req:"+req);
-//     console.log("req.session.username:" + req.session.username);
-//     if (req.session.username) {
-//         var getUser = "select * from users where username='" + req.body.username + "'";
-//         console.log("Query is:" + getUser);
-//         mysql.fetchData(function (err, results) {
-//             if (err) {
-//                 throw err;
-//             }
-//             else {
-//                 if (results.length > 0) {
-//                     console.log("valid Login");
-//                     console.log("results:" + results);
-//                     console.log("results[0]:" + results[0]);
-//                     // //Assigning the session
-//                     res.status(200).send({user: results[0]});
-//                 }
-//                 else {
-//                     console.log("Invalid Login");
-//                     res.statusMessage = "Username does not exist. Please double-check and try again.";
-//                     res.status(400).end();
-//                 }
-//             }
-//         }, getUser);
-//     } else {
-//         res.statusMessage = "invalid session";
-//         res.status(401).end();
-//     }
-// });
+
+
+router.post('/getOtherUser', isAuthenticated,function (req, res, next) {
+    //  console.log("req:"+req);
+    kafka.make_request('getUser_topic', {
+            "username": req.body.username,
+        }, function (err, results) {
+            console.log('in /getUser result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Username does not exist. Please double-check and try again.";
+                res.status(400).end();
+            } else {
+                if (results.code == 200) {
+                    console.log('/getUser:: results.value');
+                    console.log(results.value);
+
+                    //success case
+                    res.status(200).send({user: results.value});
+                }
+            }
+        }
+    );
+});
 
 // User profile update 'About Me' request
 router.post('/user/updateAboutMe', isAuthenticated, function (req, res) {
