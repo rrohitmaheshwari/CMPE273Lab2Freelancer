@@ -121,7 +121,7 @@ class DashboardPage extends React.Component {
 
     handleInputChange_tableMyProjects(e) {
         e.preventDefault();
-this.setState({value_tab1:"All"});
+        this.setState({value_tab1: "All"});
         console.log(e.target.value);
 
         var temp_array = [];
@@ -139,7 +139,7 @@ this.setState({value_tab1:"All"});
 
     handleInputChange_tablebid(e) {
         e.preventDefault();
-        this.setState({value_tab2:"All"});
+        this.setState({value_tab2: "All"});
         console.log(e.target.value);
 
         var temp_array = [];
@@ -158,7 +158,7 @@ this.setState({value_tab1:"All"});
 
     handleInputChange_tablefreelancer(e) {
         e.preventDefault();
-        this.setState({value_tab3:"All"});
+        this.setState({value_tab3: "All"});
         console.log(e.target.value);
 
         var temp_array = [];
@@ -178,7 +178,7 @@ this.setState({value_tab1:"All"});
         event.preventDefault();
         document.getElementById('Search1').value = "";
 
-        this.setState({value_tab1:event.target.value});
+        this.setState({value_tab1: event.target.value});
         if (event.target.value === "All") {
             this.setState({my_project_details: this.state.my_project_details_master});
 
@@ -190,10 +190,10 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_project_details_master.length; i++) {
-               if (this.state.my_project_details_master[i]._id.status==="Open") {
+                if (this.state.my_project_details_master[i]._id.status === "Open") {
                     temp_array[j] = this.state.my_project_details_master[i]
                     j++;
-               }
+                }
             }
             this.setState({my_project_details: temp_array});
 
@@ -204,7 +204,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_project_details_master.length; i++) {
-                if (this.state.my_project_details_master[i]._id.status==="Assigned") {
+                if (this.state.my_project_details_master[i]._id.status === "Assigned") {
                     temp_array[j] = this.state.my_project_details_master[i]
                     j++;
                 }
@@ -218,7 +218,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_project_details_master.length; i++) {
-                if (this.state.my_project_details_master[i]._id.status==="Submitted") {
+                if (this.state.my_project_details_master[i]._id.status === "Submitted") {
                     temp_array[j] = this.state.my_project_details_master[i]
                     j++;
                 }
@@ -230,12 +230,11 @@ this.setState({value_tab1:"All"});
     }
 
 
-
     handleChange_select2(event) {
         event.preventDefault();
         document.getElementById('Search2').value = "";
 
-        this.setState({value_tab2:event.target.value});
+        this.setState({value_tab2: event.target.value});
         if (event.target.value === "All") {
             this.setState({my_bid_details: this.state.my_bid_details_master});
 
@@ -247,7 +246,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
-                if (this.state.my_bid_details_master[i].status==="Open") {
+                if (this.state.my_bid_details_master[i].status === "Open") {
                     temp_array[j] = this.state.my_bid_details_master[i]
                     j++;
                 }
@@ -261,7 +260,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
-                if (this.state.my_bid_details_master[i].status==="Assigned") {
+                if (this.state.my_bid_details_master[i].status === "Assigned") {
                     temp_array[j] = this.state.my_bid_details_master[i]
                     j++;
                 }
@@ -275,7 +274,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
-                if (this.state.my_bid_details_master[i].status==="Submitted") {
+                if (this.state.my_bid_details_master[i].status === "Submitted") {
                     temp_array[j] = this.state.my_bid_details_master[i]
                     j++;
                 }
@@ -287,12 +286,11 @@ this.setState({value_tab1:"All"});
     }
 
 
-
     handleChange_select3(event) {
         event.preventDefault();
         document.getElementById('Search3').value = "";
 
-        this.setState({value_tab3:event.target.value});
+        this.setState({value_tab3: event.target.value});
         if (event.target.value === "All") {
             this.setState({my_project_as_freelancer: this.state.my_project_as_freelancer_master});
 
@@ -305,7 +303,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_project_as_freelancer_master.length; i++) {
-                if (this.state.my_project_as_freelancer_master[i].status==="Assigned") {
+                if (this.state.my_project_as_freelancer_master[i].status === "Assigned") {
                     temp_array[j] = this.state.my_project_as_freelancer_master[i]
                     j++;
                 }
@@ -319,7 +317,7 @@ this.setState({value_tab1:"All"});
 
             var j = 0;
             for (var i = 0; i < this.state.my_project_as_freelancer_master.length; i++) {
-                if (this.state.my_project_as_freelancer_master[i].status==="Submitted") {
+                if (this.state.my_project_as_freelancer_master[i].status === "Submitted") {
                     temp_array[j] = this.state.my_project_as_freelancer_master[i]
                     j++;
                 }
@@ -342,29 +340,33 @@ this.setState({value_tab1:"All"});
                         <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> My Projects</span>
                         </div>
+                        {this.state.my_project_details_status &&
+                        <div>
+                            <div className="col-md-2 col-md-offset-0">
+                                <div class="custom-select">
+                                    <select value={this.state.value_tab1}
+                                            onChange={this.handleChange_select1.bind(this)}>
+                                        <option value="All">All</option>
+                                        <option value="Open">Open</option>
+                                        <option value="Assigned">Assigned</option>
+                                        <option value="Submitted">Submitted</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <div className="col-md-2 col-md-offset-0">
-                            <div class="custom-select">
-                                <select value={this.state.value_tab1} onChange={this.handleChange_select1.bind(this)} >
-                                    <option value="All">All</option>
-                                    <option value="Open">Open</option>
-                                    <option value="Assigned">Assigned</option>
-                                    <option value="Submitted">Submitted</option>
-                                </select>
+                            <div className="col-md-2 col-md-offset-0">
+
+                                <input
+                                    placeholder="Search..."
+                                    ref={input => this.search = input}
+                                    className={'searchbar'}
+                                    onChange={this.handleInputChange_tableMyProjects.bind(this)}
+                                    id={'Search1'}
+                                />
+
                             </div>
                         </div>
-
-                        <div className="col-md-2 col-md-offset-0">
-                            {this.state.my_project_details_status &&
-                            <input
-                                placeholder="Search..."
-                                ref={input => this.search = input}
-                                className={'searchbar'}
-                                onChange={this.handleInputChange_tableMyProjects.bind(this)}
-                                id={'Search1'}
-                            />
-                            }
-                        </div>
+                        }
                     </div>
 
                     <div className="col-sm-8 col-sm-offset-2">
@@ -452,28 +454,33 @@ this.setState({value_tab1:"All"});
                         <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> Projects I have bid on</span>
                         </div>
-                        <div className="col-md-2 col-md-offset-0">
-                            <div class="custom-select">
-                                <select value={this.state.value_tab2} onChange={this.handleChange_select2.bind(this)} >
-                                    <option value="All">All</option>
-                                    <option value="Open">Open</option>
-                                    <option value="Assigned">Assigned</option>
-                                    <option value="Submitted">Submitted</option>
-                                </select>
+                        {this.state.my_bid_status &&
+                        <div>
+                            <div className="col-md-2 col-md-offset-0">
+                                <div class="custom-select">
+                                    <select value={this.state.value_tab2}
+                                            onChange={this.handleChange_select2.bind(this)}>
+                                        <option value="All">All</option>
+                                        <option value="Open">Open</option>
+                                        <option value="Assigned">Assigned</option>
+                                        <option value="Submitted">Submitted</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="col-md-2 col-md-offset-0">
+
+                                <input
+                                    placeholder="Search..."
+                                    ref={input => this.search = input}
+                                    className={'searchbar'}
+                                    onChange={this.handleInputChange_tablebid.bind(this)}
+                                    id={'Search2'}
+                                />
+
                             </div>
                         </div>
-
-                        <div className="col-md-2 col-md-offset-0">
-                            {this.state.my_bid_status &&
-                            <input
-                                placeholder="Search..."
-                                ref={input => this.search = input}
-                                className={'searchbar'}
-                                onChange={this.handleInputChange_tablebid.bind(this)}
-                                id={'Search2'}
-                            />
-                            }
-                        </div>
+                        }
                     </div>
 
                     <div className="col-sm-8 col-sm-offset-2">
@@ -550,28 +557,31 @@ this.setState({value_tab1:"All"});
                         <div className="col-md-8 col-md-offset-0">
                             <span className="ProjectTitleBid"> Projects I am working on as Freelancer</span>
                         </div>
+                        {this.state.my_project_as_freelancer_status &&
+                        <div>
+                            <div className="col-md-2 col-md-offset-0">
+                                <div class="custom-select">
+                                    <select value={this.state.value_tab3}
+                                            onChange={this.handleChange_select3.bind(this)}>
+                                        <option value="All">All</option>
+                                        <option value="Assigned">Assigned</option>
+                                        <option value="Submitted">Submitted</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <div className="col-md-2 col-md-offset-0">
-                            <div class="custom-select">
-                                <select value={this.state.value_tab3} onChange={this.handleChange_select3.bind(this)} >
-                                    <option value="All">All</option>
-                                    <option value="Assigned">Assigned</option>
-                                    <option value="Submitted">Submitted</option>
-                                </select>
+                            <div className="col-md-2 col-md-offset-0">
+
+                                <input
+                                    placeholder="Search..."
+                                    ref={input => this.search = input}
+                                    className={'searchbar'}
+                                    onChange={this.handleInputChange_tablefreelancer.bind(this)}
+                                    id={'Search3'}
+                                />
                             </div>
                         </div>
-
-                        <div className="col-md-2 col-md-offset-0">
-                            {this.state.my_project_as_freelancer_status &&
-                            <input
-                                placeholder="Search..."
-                                ref={input => this.search = input}
-                                className={'searchbar'}
-                                onChange={this.handleInputChange_tablefreelancer.bind(this)}
-                                id={'Search3'}
-                            />
-                            }
-                        </div>
+                        }
                     </div>
 
                     <div className="col-sm-8 col-sm-offset-2">

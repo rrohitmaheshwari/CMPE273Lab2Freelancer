@@ -1352,3 +1352,13 @@ body select option {
 select:disabled::-ms-expand {
     background: #f60;
 }
+
+#TransactionButton {
+    margin-top: 5%;
+    height: 44px;
+}
+
+
+
+
+

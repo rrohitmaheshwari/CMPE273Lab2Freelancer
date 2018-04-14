@@ -4,11 +4,11 @@ import {history} from "../Helpers";
 import ProfileImage from '../Images/ProfileImage.png';
 import {RESTService} from "../API";
 import filesize from "filesize";
-import Dropzone             from 'react-dropzone';
+import Dropzone from 'react-dropzone';
 
 
-import plusIcon             from '../Images/plus_icon.png';
-import uploadIcon             from '../Images/upload_file.png';
+import plusIcon from '../Images/plus_icon.png';
+import uploadIcon from '../Images/upload_file.png';
 import {userActions} from "../Actions";
 import Alert from "react-s-alert";
 
@@ -54,9 +54,9 @@ class BidProject extends React.Component {
                 column: null,
                 direction: 'desc',
             },
-            freelancer_assigned:false,
-            isUploaded          : false,
-            projectFiles        : [],
+            freelancer_assigned: false,
+            isUploaded: false,
+            projectFiles: [],
         };
         this.handleChange = this.handleChange.bind(this);
     };
@@ -95,8 +95,7 @@ class BidProject extends React.Component {
         console.log(parsed.project_id);
         var Project_ID = parsed.project_id;
 
-        const {dispatch,user} = this.props;
-
+        const {dispatch, user} = this.props;
 
 
         RESTService.getBidDetails(Project_ID)
@@ -135,9 +134,8 @@ class BidProject extends React.Component {
                     console.log(this.state);
                     console.log(this.state.filenames);
                     console.log(this.state.project_details);
-                    if(this.state.project_details._id.freelancer_username === user.username)
-                    {
-                        this.setState({freelancer_assigned:true});
+                    if (this.state.project_details._id.freelancer_username === user.username) {
+                        this.setState({freelancer_assigned: true});
                     }
                 },
                 error => {
@@ -160,7 +158,7 @@ class BidProject extends React.Component {
         projectFiles.push(acceptedFiles);
         this.setState({
             projectFiles: projectFiles,
-            isUploaded : true
+            isUploaded: true
         });
     }
 
@@ -171,17 +169,17 @@ class BidProject extends React.Component {
         var fileName = event.target.value;
         var oldProjectFiles = this.state.projectFiles;
         var newProjectFiles = [];
-        for(let position = 0; position < oldProjectFiles.length; position++) {
+        for (let position = 0; position < oldProjectFiles.length; position++) {
             if (oldProjectFiles[position][0].name === fileName) {
                 newProjectFiles = oldProjectFiles.splice(position, 1);
             }
         }
 
-        this.setState({ isSubmitted: false });
+        this.setState({isSubmitted: false});
 
-        if(!newProjectFiles) {
+        if (!newProjectFiles) {
             this.setState({
-                projectFiles : newProjectFiles
+                projectFiles: newProjectFiles
             });
         }
     }
@@ -203,8 +201,6 @@ class BidProject extends React.Component {
 
                 // names must be equal
                 return 0;
-            } else {
-                return a.contractValue - b.contractValue;
             }
         });
 
@@ -266,43 +262,34 @@ class BidProject extends React.Component {
 
         event.preventDefault();
 
-        this.setState({ isSubmitted: true });
+        this.setState({isSubmitted: true});
+
+        let file = this.state.projectFiles;
+
+        let filenames = "";
+        if (file.length > 0) {
+            filenames = this.uploadFiles(file);
+        }
+
+        const project = {
+            id: this.state.project_details._id.id,
+            filenames: filenames,
+        };
 
 
-        let file    = this.state.projectFiles;
+        RESTService.submitProject(project)
+            .then(
+                response => {
+                    console.log(response.data.message);
 
 
+                    window.alert(response.data.message);
+                },
+                error => {
+                    //  dispatch(alertActions.projectPostError(error.data.message));
+                }
+            );
 
-
-
-
-            let filenames = "";
-            if(file.length > 0) {
-                filenames = this.uploadFiles(file);
-            }
-
-            const project = {
-                id              :  this.state.project_details._id.id,
-                filenames       : filenames,
-            };
-
-
-            RESTService.submitProject(project)
-                .then(
-                    response => {
-                        console.log(response.data.message);
-
-
-
-                        window.alert(response.data.message);
-                    },
-                    error => {
-                        //  dispatch(alertActions.projectPostError(error.data.message));
-                    }
-                );
-
-
-            //history.push("/HomePage");
 
     }
 
@@ -310,7 +297,7 @@ class BidProject extends React.Component {
         const uploadFiles = new FormData();
         var filenames = "";
         for (let index = 0; index < files.length; index++) {
-            if(index === files.length-1) {
+            if (index === files.length - 1) {
                 filenames = filenames.concat(files[index][0].name);
             }
             else {
@@ -329,8 +316,6 @@ class BidProject extends React.Component {
                     console.log(error);
                 }
             )
-
-
 
 
         return filenames;
@@ -534,10 +519,10 @@ class BidProject extends React.Component {
 
                                     </div>
                                     <div className="col-sm-4 col-sm-offset-0">
-                                        { !this.state.freelancer_assigned &&
-                                            <button className="btn btn-primary" id="BidProjectButtonBig"
-                                                    onClick={this.handleBidProject.bind(this)}>Bid On This Project
-                                            </button>
+                                        {!this.state.freelancer_assigned &&
+                                        <button className="btn btn-primary" id="BidProjectButtonBig"
+                                                onClick={this.handleBidProject.bind(this)}>Bid On This Project
+                                        </button>
                                         }
                                         <br/> <br/> <br/> <br/> <br/> <br/> <br/> <br/><br/> <br/> <br/> <br/> <br/>
                                         <br/> <br/>
@@ -590,94 +575,85 @@ class BidProject extends React.Component {
                                         }
 
 
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-    }
-
-                            {this.state.freelancer_assigned&&
-
-
-                                <div className="panel panel-primary" id="shadowpanel">
-
-
-
-
-
-                                            <Dropzone
-                                                className = "file-upload-area"
-                                                onDrop    = { (files) => this.onDrop(files) }
-                                            >
-                                                            <span className="btn btn-plain btn-file-uploader">
-                                                                <span><img className="fl-icon-plus" src = { plusIcon } alt="" ></img></span>
-                                                                <span className="file-upload-button-text">Upload File</span>
-                                                            </span>
-                                                <p className="file-upload-text">
-                                                    Drag & drop any images or documents that might be
-                                                    helpful in explaining your project brief here.
-                                                </p>
-                                            </Dropzone>
-                                            {
-                                                this.state.isUploaded &&
-                                                <table className="table-upload">
-                                                    <tbody className="table-upload-body">
-                                                    {
-                                                        this.state.projectFiles.map((data) =>
-                                                            <tr key = {  this.state.projectFiles.indexOf(data) } className="table-upload-row">
-                                                                <td className="table-upload-row-preview">
-                                                                    <img
-                                                                        className = "preview-image"
-                                                                        src = { data[0].type === 'application/pdf' ? uploadIcon : URL.createObjectURL(data[0]) }
-                                                                        alt ="">
-
-                                                                    </img>
-                                                                </td>
-                                                                <td className="table-upload-row-name">
-                                                                                <span>
-                                                                                    { data[0].name }
-                                                                                </span>
-                                                                </td>
-                                                                <td className="table-upload-row-size">
-                                                                    { filesize(data[0].size) }
-                                                                </td>
-                                                                <td className="table-upload-row-delete">
-                                                                    <button
-                                                                        value     = { data[0].name }
-                                                                        className = "btn btn-danger btn-small"
-                                                                        onClick   = { this.handleDeleteFile }
-                                                                    >
-                                                                        <span>Delete</span>
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        )
-                                                    }
-                                                    </tbody>
-                                                </table>
-                                            }
-
-
-
-<div>
-                                        <button className="btn btn-xlarge pp-submit-btn btn-primary"  onClick={this.handleSubmit.bind(this)}>
-                                            <span>Submit</span>
-                                        </button>
-
-</div>
+                                        </tbody>
+                                    </table>
 
                                 </div>
+                            </div>
                             }
 
+                            {this.state.freelancer_assigned &&
 
 
+                            <div className="panel panel-primary" id="shadowpanel">
 
 
+                                <Dropzone
+                                    className="file-upload-area"
+                                    onDrop={(files) => this.onDrop(files)}
+                                >
+                                                            <span className="btn btn-plain btn-file-uploader">
+                                                                <span><img className="fl-icon-plus" src={plusIcon}
+                                                                           alt=""></img></span>
+                                                                <span
+                                                                    className="file-upload-button-text">Upload File</span>
+                                                            </span>
+                                    <p className="file-upload-text">
+                                        Drag & drop any images or documents that might be
+                                        helpful in explaining your project brief here.
+                                    </p>
+                                </Dropzone>
+                                {
+                                    this.state.isUploaded &&
+                                    <table className="table-upload">
+                                        <tbody className="table-upload-body">
+                                        {
+                                            this.state.projectFiles.map((data) =>
+                                                <tr key={this.state.projectFiles.indexOf(data)}
+                                                    className="table-upload-row">
+                                                    <td className="table-upload-row-preview">
+                                                        <img
+                                                            className="preview-image"
+                                                            src={data[0].type === 'application/pdf' ? uploadIcon : URL.createObjectURL(data[0])}
+                                                            alt="">
+
+                                                        </img>
+                                                    </td>
+                                                    <td className="table-upload-row-name">
+                                                                                <span>
+                                                                                    {data[0].name}
+                                                                                </span>
+                                                    </td>
+                                                    <td className="table-upload-row-size">
+                                                        {filesize(data[0].size)}
+                                                    </td>
+                                                    <td className="table-upload-row-delete">
+                                                        <button
+                                                            value={data[0].name}
+                                                            className="btn btn-danger btn-small"
+                                                            onClick={this.handleDeleteFile}
+                                                        >
+                                                            <span>Delete</span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }
+                                        </tbody>
+                                    </table>
+                                }
 
 
+                                <div>
+                                    <button className="btn btn-xlarge pp-submit-btn btn-primary"
+                                            onClick={this.handleSubmit.bind(this)}>
+                                        <span>Submit</span>
+                                    </button>
 
+                                </div>
 
+                            </div>
+                            }
 
 
                         </div>

@@ -447,8 +447,22 @@ class HomePage extends React.Component {
                                             <h4><b><a href={`/MyProfile`}>@{user.username}</a></b></h4>
                                         </div>
                                     </div>
+
+                                    <div className="col-sm-12 col-sm-offset-0">
+                                        <div className="col-md-12 col-md-offset-0">
+                                            <button className="btn btn-primary" id="TransactionButton" onClick={() => {
+                                                history.push("/TransactionManager");
+                                            }}> Transaction Manager </button>
+                                        </div>
+                                    </div>
+
+
+
                                 </div>
                             </div>
+
+
+
                         </div>
                     </div>
 

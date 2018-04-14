@@ -10,6 +10,8 @@ export function navbar(state = {page: 'home'}, action) {
             return { page: 'profile' };
         case "POST_A_PROJECT":
             return { page: 'post_a_project' };
+        case "TRANSACTION":
+            return { page: 'transaction_page' };
         case "UNSET":
             return {};
         default:

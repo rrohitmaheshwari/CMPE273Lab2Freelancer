@@ -16,6 +16,7 @@ import {PostProject} from "../PostProject";
 import {BidProject} from "../BidProject";
 import {HireProject} from "../HireProject";
 import {ViewProfilePage} from "../ViewProfilePage";
+import {Transaction} from "../Transaction";
 
 import fllogo from '../Images/Logo.png';
 import {RESTService} from "../API";
@@ -176,6 +177,8 @@ class App extends React.Component {
                             <Route startsWith path="/HireProject" component={HireProject}/>}
                         {!user ? <Route exact path="/ViewProfilePage/:username" component={LoginPage}/> :
                             <Route exact path="/ViewProfilePage/:username" component={ViewProfilePage}/>}
+                        {!user ? <Route exact path="/TransactionManager" component={LoginPage}/> :
+                            <Route exact path="/TransactionManager" component={Transaction}/>}
 
 
                     </div>
