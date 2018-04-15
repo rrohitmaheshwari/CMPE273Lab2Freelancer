@@ -99,6 +99,9 @@ class BidProject extends React.Component {
         const {dispatch, user} = this.props;
 
 
+        dispatch({type: "BID_NOW"});
+
+
         RESTService.getBidDetails(Project_ID)
             .then(
                 response => {
@@ -289,6 +292,7 @@ class BidProject extends React.Component {
 
 
                     window.alert(response.data.message);
+                    history.push("/dashboard")
                 },
                 error => {
                     //  dispatch(alertActions.projectPostError(error.data.message));

@@ -64,7 +64,9 @@ class HomePage extends React.Component {
 
                     console.log("User Skills-");
                     user.skills=user.skills+",";
-                    var user_skills = user.skills.split(",");
+
+
+                    var user_skills = user.skills.trim().split(",");
                     console.log(user_skills);
 
                     var temp_array = [];
@@ -159,7 +161,7 @@ class HomePage extends React.Component {
 
     render() {
         //Pagination variables for table1
-        let currentItems_table1;
+        let currentItems_table1=[];
         const pageNumbers_table1 = [];
 
         const {user} = this.props;
@@ -222,7 +224,7 @@ class HomePage extends React.Component {
                 </li>
             );
         });
-
+    console.log(`/ProfileImage/${user.username}.jpg`);
 
         return (
             <div>
@@ -433,7 +435,7 @@ class HomePage extends React.Component {
                                     <div className="col-sm-5 col-sm-offset-0">
                                         <div className="col-md-12 col-md-offset-0">
                                             <img className="FreeLancerIcon"
-                                                 src={`http://localhost:3001/ProfileImage/${user.username}.jpg`}
+                                                 src={`/ProfileImage/${user.username}.jpg`}
                                                  onError={(e) => {
                                                      e.target.src = ProfileImage
                                                  }}/>

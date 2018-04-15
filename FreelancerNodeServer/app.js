@@ -12,7 +12,7 @@ require('./routes/passport');
 //var session = require('client-sessions');
 var session = require('express-session');
 var mongoStore = require("connect-mongo/es5")(session);
-var mongoSessionURL = "mongodb://localhost:27017/sessions";
+var mongoSessionURL = "mongodb://freelancerdb:freelancerdb@ds133659.mlab.com:33659/freelancerdb";
 
 var app = express();
 
@@ -26,7 +26,7 @@ app.use(logger('dev'));
 
 app.use(cors(
     {
-        origin: ['http://localhost:3000', 'http://10.0.0.137:3000','http://10.0.0.188:3000'],
+        origin: ['http://localhost:3000'],
         credentials: true,
     }
 ));

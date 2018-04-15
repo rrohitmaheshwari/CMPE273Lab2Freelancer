@@ -36,5 +36,11 @@
   "main": "index.js",
   "devDependencies": {},
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "proxy": {
+    "/ProfileImage": {
+      "target": "http://localhost:3001",
+      "ws": true
+    }
+  }
 }

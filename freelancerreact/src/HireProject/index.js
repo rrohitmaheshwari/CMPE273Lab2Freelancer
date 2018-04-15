@@ -60,6 +60,7 @@ class HireProject extends React.Component {
 
         const {dispatch,user} = this.props;
 
+        dispatch({type: "HIRE_NOW"});
 
         RESTService.getprojectdetails(Project_ID)
             .then(
@@ -493,7 +494,11 @@ else {
                                 }</span>
 
                                     <button className="btn btn-primary" onClick={this.handlePayMoney.bind(this)} > Pay Freelancer </button>
-
+                                    <button className="btn btn-primary" onClick={() => {
+                                        history.push("/TransactionManager");
+                                    }}
+                                            style={{marginLeft: 40}}
+                                    > Transaction Manager </button>
                                     <br/>    <br/>   <br/>
 
                                 </div>

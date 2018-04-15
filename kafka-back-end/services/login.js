@@ -1,5 +1,5 @@
 var mongo = require("./mongo");
-var mongoURL = "mongodb://localhost:27017/freelancerdb";
+var mongoURL = "mongodb://freelancerdb:freelancerdb@ds133659.mlab.com:33659/freelancerdb";
 //var bcrypt = require('bcrypt');
 var crypto = require('crypto');
 

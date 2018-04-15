@@ -12,6 +12,10 @@ export function navbar(state = {page: 'home'}, action) {
             return { page: 'post_a_project' };
         case "TRANSACTION":
             return { page: 'transaction_page' };
+        case "BID_NOW":
+            return { page: 'bid_page' };
+        case "HIRE_NOW":
+            return { page: 'hire_page' };
         case "UNSET":
             return {};
         default:

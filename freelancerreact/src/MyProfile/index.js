@@ -7,6 +7,7 @@ import ContentEditable from 'react-contenteditable';
 import $ from "jquery";
 import {RESTService} from "../API";
 import ProfileImage from '../Images/ProfileImage.png';
+import {history} from "../Helpers";
 
 //import Modal from 'react-modal';
 
@@ -295,6 +296,11 @@ class MyProfile extends React.Component {
                                                 </button>
                                                 }
                                             </div>
+                                            <button className="btn btn-primary" onClick={() => {
+                                                history.push("/TransactionManager");
+                                            }}
+                                                    style={{marginLeft: 40}}
+                                            > Transaction Manager </button>
                                         </div>
                                     </div>
                                     <div className="col-sm-6 col-md-6 col-lg-6 profile-about">

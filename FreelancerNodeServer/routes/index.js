@@ -11,6 +11,10 @@ var passport = require('passport');
 require('../routes/passport');
 
 var nodemailer = require('nodemailer');
+var currentPath = process.cwd();
+
+console.log("currentPath");
+console.log(currentPath);
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -829,7 +833,7 @@ var storageProjFiles = multer.diskStorage({
     }
 });
 
-var rootDirectory = "public/project_files/";
+var rootDirectory = currentPath+"/public/project_files/";
 
 var uploadProjFiles = multer({
     storage: storageProjFiles
