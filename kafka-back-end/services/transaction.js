@@ -1,16 +1,24 @@
-var Transaction = require('../model/Project');
+var Transaction = require('../model/transaction');
 
 function handle_request(msg, callback) {
 
     var res = {};
+
+    var date = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
 
     var myObj = new Transaction({
         from: msg.request.from,
         to: msg.request.to,
         type: msg.request.type,
         amount: msg.request.amount,
-        Date: msg.request.Date,
+        Date: date + '-' + month + '-' + year,
+        project : msg.request.project
+
     });
+
+
 
     var promise = myObj.save();
 

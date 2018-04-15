@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 
-
 import freeLogo             from '../Images/fl-logo.svg';
 import plusIcon             from '../Images/plus_icon.png';
 import uploadIcon             from '../Images/upload_file.png';

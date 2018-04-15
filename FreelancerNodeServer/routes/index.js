@@ -171,6 +171,40 @@ router.post('/project/submit-project', function (req, res) {
 });
 
 
+
+/* POST Transaction request*/
+router.post('/project/post-Transaction', function (req, res) {
+
+
+    if (req.session.username) {
+        kafka.make_request('transaction_topic', {
+            "request": req.body,
+            "username": req.session.username
+        }, function (err, results) {
+            console.log('transaction_topic');
+            console.log(results);
+            if (err) {
+                console.log("err" + err);
+                res.status(500).send({message: "Server Error,please try again!"});
+            }
+            else {
+                console.log("Fetch Successful!");
+                res.status(200).send({message: "Transaction successful!"});
+
+            }
+
+        });
+
+    }
+    else {
+        console.log("Session expired!");
+        res.statusMessage = "Session expired!";
+        res.status(401).end();
+    }
+
+});
+
+
 /* POST home page Project details. */
 
 router.post('/home/getdetails', function (req, res) {
@@ -387,6 +421,36 @@ router.get('/project/getMyProjectDetails', function (req, res) {
                     res.statusMessage = "No data fetched";
                     res.status(200).send({result: []});
                 }
+            }
+        }
+    );
+
+});
+
+
+
+
+router.get('/project/getMyTransactionDetails', function (req, res) {
+
+
+    console.log('###getMyTransactionDetails called###');
+    console.log(req.body);
+    //setting queue name and payload
+    kafka.make_request('transaction-details_topic', {
+            "username": req.session.username,
+        }, function (err, results) {
+            console.log('in result');
+            console.log(results);
+            if (err) {
+                //failure case
+                res.statusMessage = "Cannot fetch Transactions at the moment";
+                res.status(400).end();
+            } else {
+
+                    console.log("Fetch Successful!");
+                    console.log(results.value);
+                    res.status(201).send({result: results.value});
+
             }
         }
     );

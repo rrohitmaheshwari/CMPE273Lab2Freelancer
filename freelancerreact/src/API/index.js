@@ -16,6 +16,7 @@ export const RESTService = {
     getBidHeader,
     postBid,
     getMyProjectDetails,
+    getMyTransactionDetails,
     getMyBidDetails,
     postFreelancer,
     getProfileImage,
@@ -27,6 +28,7 @@ export const RESTService = {
     updateName,
     sendFile,
     postProject,
+    postTransaction,
     uploadFile,
     getByUserName,
     submitProject,
@@ -112,6 +114,17 @@ function getprojectdetails(project_id) {
     return fetch(`${api}/project/getprojectdetails?project_id=${project_id}`, requestOptions).then(handleResponse);
 }
 
+function getMyTransactionDetails() {
+    const requestOptions = {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        credentials: 'include',
+
+    };
+
+    return fetch(`${api}/project/getMyTransactionDetails`, requestOptions).then(handleResponse);
+}
+
 function getMyProjectDetails(username) {
     const requestOptions = {
         method: 'GET',
@@ -122,6 +135,7 @@ function getMyProjectDetails(username) {
 
     return fetch(`${api}/project/getMyProjectDetails?username=${username}`, requestOptions).then(handleResponse);
 }
+
 
 function getMyBidDetails() {
     const requestOptions = {
@@ -345,6 +359,11 @@ function updateName(name) {
 function postProject(project) {
     let postProjectUrl = api + '/project/post-project';
     return axiosPost(postProjectUrl, project);
+}
+
+function postTransaction(Transaction) {
+    let postProjectUrl = api + '/project/post-Transaction';
+    return axiosPost(postProjectUrl, Transaction);
 }
 
 function submitProject(project) {

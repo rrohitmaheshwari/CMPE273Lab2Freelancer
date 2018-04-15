@@ -4,7 +4,9 @@ import {connect} from 'react-redux';
 import ProfileImage from '../Images/ProfileImage.png';
 import {RESTService} from "../API";
 
-import ReactHighcharts from 'react-highcharts'; // Expects that Highcharts was loaded in the code.
+import ReactHighcharts from 'react-highcharts';
+import {history} from "../Helpers";
+import {userActions} from "../Actions"; // Expects that Highcharts was loaded in the code.
 
 
 class Transaction extends React.Component {
@@ -15,11 +17,12 @@ class Transaction extends React.Component {
 
         this.state = {
             incoming: 100,
-            outgoing: 200,
-            Add_Money: true,
-            Withdraw_Money: true,
-
-
+            outgoing: 100,
+            Add_Money: false,
+            Withdraw_Money: false,
+            my_transaction_details_status: false,
+            my_transaction_details: [],
+            my_transaction_details_master: [],
         };
 
     }
@@ -28,6 +31,112 @@ class Transaction extends React.Component {
     componentWillMount() {
         const {dispatch} = this.props;
         dispatch({type: "TRANSACTION"});
+
+
+        RESTService.getMyTransactionDetails()
+            .then(
+                response => {
+                    console.log(response.result.length);
+                    if (response.result.length > 0)
+                        this.setState({my_transaction_details_status: true});
+                    this.setState({my_transaction_details: response.result});
+                    this.setState({my_transaction_details_master: response.result});
+
+                    console.log("this.state.getMyTransactionDetails");
+                    console.log(this.state.my_transaction_details_master);
+
+                    var incoming=0,outgoing=0;
+
+                    for (var i = 0; i < response.result.length; i++) {
+                        if (response.result[i].type === "Add") {
+
+                            incoming+=response.result[i].amount;
+                        }
+                        else  if (response.result[i].type === "Withdraw") {
+
+                            outgoing+=response.result[i].amount;
+                        }
+                    }
+                    this.setState({incoming:incoming});
+                    this.setState({outgoing:outgoing});
+
+
+                },
+                error => {
+                    console.log("Error!");
+                    console.log(error);
+
+
+                }
+            );
+
+
+    }
+
+
+    handleAddMoney = (event) => {
+
+        const {user} = this.props;
+
+        event.preventDefault();
+
+
+        const Transaction = {
+            from: user.username,
+            to: user.username,
+            type: "Add",
+            amount: this.refs.Add.value,
+            project: '',
+        };
+
+
+        RESTService.postTransaction(Transaction)
+            .then(
+                response => {
+                    this.refs.Add.value="";
+                    this.refs.Card.value="";
+                    this.refs.CVV.value="";
+                    window.alert(response.data.message);
+                    this.setState({Add_Money: false,});
+
+
+                },
+                error => {
+
+                }
+            );
+
+    }
+
+
+    handleWithdrawMoney = (event) => {
+
+        const {user} = this.props;
+
+        event.preventDefault();
+
+
+        const Transaction = {
+            from: user.username,
+            to: user.username,
+            type: "Withdraw",
+            amount: this.refs.Withdraw.value,
+            project: '',
+        };
+
+
+        RESTService.postTransaction(Transaction)
+            .then(
+                response => {
+                    this.refs.Withdraw.value = "";
+                    this.refs.Account.value = "";
+                    window.alert(response.data.message);
+                    this.setState({Withdraw_Money: false,});
+                },
+                error => {
+
+                }
+            );
 
 
     }
@@ -116,8 +225,6 @@ class Transaction extends React.Component {
                                 <div className="panel panel-primary" id="shadowpanel">
 
 
-
-
                                     <button type="button" className="close" aria-label="Close" onClick={() => {
 
                                         this.setState({Add_Money: !this.state.Add_Money})
@@ -125,29 +232,33 @@ class Transaction extends React.Component {
                                     }}>
                                         <span aria-hidden="true">&times;</span>
                                     </button>
-                                    <p>Add Money</p>
-                                    <br/>
-                                    <div className="input-group">
-                                        <span className="input-group-addon">$</span>
-                                        <input type="text" className="form-control" name="add" placeholder="Add Amount"/>
-                                    </div>
+                                    <form onSubmit={this.handleAddMoney}>
+                                        <p>Add Money</p>
+                                        <br/>
+                                        <div className="input-group">
+                                            <span className="input-group-addon">$</span>
+                                            <input type="text" className="form-control" name="Add" ref="Add"
+                                                   placeholder="Add Amount" required={true}/>
+                                        </div>
 
-                                    <div className="input-group">
-                                        <span className="input-group-addon"><i class="glyphicon glyphicon-credit-card"/></span>
-                                        <input type="text" className="form-control" name="Card" placeholder="Card"/>
-                                    </div>
+                                        <div className="input-group">
+                                            <span className="input-group-addon"><i
+                                                class="glyphicon glyphicon-credit-card"/></span>
+                                            <input type="text" className="form-control" name="Card" ref="Card" placeholder="Card"
+                                                   required={true}/>
+                                        </div>
 
-                                    <div className="input-group">
-                                        <span className="input-group-addon">CVV</span>
-                                        <input type="text" className="form-control" name="CVV" placeholder="XXX"/>
-                                    </div>
-
-
-                                    <div className="text-right">
-                                    <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
-                                    </div>
+                                        <div className="input-group">
+                                            <span className="input-group-addon">CVV</span>
+                                            <input type="text" className="form-control" name="CVV" ref="CVV" placeholder="XXX"
+                                                   required={true}/>
+                                        </div>
 
 
+                                        <div className="text-right">
+                                            <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
+                                        </div>
+                                    </form>
 
 
                                 </div>
@@ -157,35 +268,91 @@ class Transaction extends React.Component {
                                 <div className="panel panel-primary" id="shadowpanel">
                                     <button type="button" className="close" aria-label="Close" onClick={() => {
 
-                                        this.setState({Add_Money: !this.state.Add_Money})
+                                        this.setState({Withdraw_Money: !this.state.Withdraw_Money})
 
                                     }}><span aria-hidden="true">&times;</span>
                                     </button>
-                                    <p>Withdraw Money</p>
-                                    <br/>
+                                    <form onSubmit={this.handleWithdrawMoney}>
+                                        <p>Withdraw Money</p>
+                                        <br/>
 
-                                    <div className="input-group">
-                                        <span className="input-group-addon"><i class="glyphicon glyphicon-piggy-bank"/></span>
-                                        <input type="text" className="form-control" name="add" placeholder="Withdraw Amount"/>
-                                    </div>
+                                        <div className="input-group">
+                                            <span className="input-group-addon"><i
+                                                class="glyphicon glyphicon-piggy-bank"/></span>
+                                            <input type="text" className="form-control" name="Withdraw" ref="Withdraw"
+                                                   placeholder="Withdraw Amount" required={true}/>
+                                        </div>
 
-                                    <div className="input-group">
-                                        <span className="input-group-addon"><i class="glyphicon glyphicon-lock"/></span>
-                                        <input type="text" className="form-control" name="Card" placeholder="Account Number"/>
-                                    </div>
-
-
-
-
-                                    <div className="text-right">
-                                        <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
-                                    </div>
+                                        <div className="input-group">
+                                            <span className="input-group-addon"><i
+                                                class="glyphicon glyphicon-lock"/></span>
+                                            <input type="text" className="form-control" name="Account" ref="Account"
+                                                   placeholder="Account Number" required={true}/>
+                                        </div>
 
 
+                                        <div className="text-right">
+                                            <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
+                                        </div>
+
+                                    </form>
 
 
                                 </div>
                                 }
+
+
+
+
+                                {this.state.my_transaction_details_status &&
+                                <div className="panel panel-primary" id="shadowpanel">
+                                <table className="m-table">
+                                    <thead>
+                                    <tr>
+
+                                        <th>Type</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Project ID</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+
+                                    {this.state.my_transaction_details.map((data) =>
+                                        <tr key={data._id}>
+                                            <td>{data.type}</td>
+                                            <td><a href={`/ViewProfilePage/${data.from}`}>@{data.from}</a></td>
+                                            <td><a href={`/ViewProfilePage/${data.to}`}>@{data.to}</a></td>
+                                            <td>{data.amount}</td>
+                                            <td>{data.Date}</td>
+                                            <td>{data.project}</td>
+                                        </tr>
+                                    )
+                                    }
+
+                                    </tbody>
+                                </table>
+
+                                </div>
+
+
+                                }
+
+
+
+
+                                {!this.state.my_transaction_details_status &&
+                                <div className="panel panel-primary" id="shadowpanel">
+                                    <p>No Transactions yet</p>
+
+                                </div>
+
+
+                                }
+
                             </div>
                         </div>
 

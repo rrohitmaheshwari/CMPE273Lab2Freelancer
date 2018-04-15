@@ -137,6 +137,8 @@ class BidProject extends React.Component {
                     if (this.state.project_details._id.freelancer_username === user.username) {
                         this.setState({freelancer_assigned: true});
                     }
+
+
                 },
                 error => {
                     console.log("Error/fetchHomeProject:");
@@ -541,7 +543,18 @@ class BidProject extends React.Component {
                                         <tr>
                                             <th>Profile Image</th>
                                             <th>Freelancer Name</th>
-                                            <th onClick={this.onSort('Bid Price')}>Bid Price</th>
+                                            <th onClick={this.onSort('Bid Price')}>Bid Price
+                                                {
+                                                    this.state.sort.column &&
+                                                    this.state.sort.direction === 'desc' &&
+                                                    <i class="ml-1 fa fa-sort-desc"></i>
+                                                }
+                                                {
+                                                    this.state.sort.column &&
+                                                    this.state.sort.direction === 'asc' &&
+                                                    <i class="ml-1 fa fa-sort-asc"></i>
+                                                }
+                                                </th>
                                             <th>Period Days</th>
                                         </tr>
                                         </thead>
@@ -594,7 +607,7 @@ class BidProject extends React.Component {
                                 >
                                                             <span className="btn btn-plain btn-file-uploader">
                                                                 <span><img className="fl-icon-plus" src={plusIcon}
-                                                                           alt=""></img></span>
+                                                                           alt=""/></span>
                                                                 <span
                                                                     className="file-upload-button-text">Upload File</span>
                                                             </span>

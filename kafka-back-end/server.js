@@ -18,7 +18,8 @@ var project_BidDetails = require('./services/project_BidDetails');
 var post_bid = require('./services/post-bid');
 var post_freelancer     = require('./services/post-freelancer');
 var submit_project     = require('./services/submit_project');
-
+var transaction     = require('./services/transaction');
+var transaction_details     = require('./services/transaction_details');
 
 var producer = connection.getProducer();
 
@@ -40,6 +41,8 @@ var consumer_project_BidDetails = connection.getConsumer('project_BidDetails');
 var consumer_post_bid = connection.getConsumer('post-bid_topic');
 var consumer_post_freelancer    = connection.getConsumer('post-freelancer_topic');
 var consumer_submit_project    = connection.getConsumer('submit-project_topic');
+var consumer_transaction    = connection.getConsumer('transaction_topic');
+var consumer_transaction_details    = connection.getConsumer('transaction-details_topic');
 
 
 
@@ -458,6 +461,54 @@ consumer_submit_project.on('message', function (message) {
         producer.send(payloads, function (err, data) {
             console.log("Logged In");
             console.log( payloads);
+            console.log(data);
+        });
+        return;
+    });
+});
+
+
+
+consumer_transaction.on('message', function (message) {
+    console.log('consumer_transaction message received');
+    console.log(message.value);
+    var data = JSON.parse(message.value);
+    transaction.handle_request(data.data, function (err, res) {
+        console.log('after handle consumer_transaction' + res);
+        var payloads = [{
+            topic: data.replyTo,
+            messages: JSON.stringify({
+                correlationId: data.correlationId,
+                data: res
+            }),
+            partition: 0
+        }
+        ];
+        producer.send(payloads, function (err, data) {
+            console.log(data);
+        });
+        return;
+    });
+});
+
+
+
+consumer_transaction_details.on('message', function (message) {
+    console.log('consumer_transaction message received');
+    console.log(message.value);
+    var data = JSON.parse(message.value);
+    transaction_details.handle_request(data.data, function (err, res) {
+        console.log('after handle consumer_transaction' + res);
+        var payloads = [{
+            topic: data.replyTo,
+            messages: JSON.stringify({
+                correlationId: data.correlationId,
+                data: res
+            }),
+            partition: 0
+        }
+        ];
+        producer.send(payloads, function (err, data) {
             console.log(data);
         });
         return;

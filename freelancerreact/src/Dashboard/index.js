@@ -23,10 +23,7 @@ class DashboardPage extends React.Component {
             value_tab2: "All",
             value_tab3: "All",
         }
-
-
     };
-
 
     componentWillMount() {
         const {dispatch} = this.props;
@@ -51,28 +48,38 @@ class DashboardPage extends React.Component {
                     dispatch({type: "USERS_LOGOUT"});
                     RESTService.logout();
                     history.push('/Login');  //home page after session expire
-
                 }
             );
 
         RESTService.getMyBidDetails()
             .then(
                 response => {
-                    if (response.result.length > 0)
-                        this.setState({my_bid_status: true});
-                    this.setState({my_bid_details: response.result});
-                    this.setState({my_bid_details_master: response.result});
-                    console.log("this.state.my_bid_details");
-                    console.log(this.state.my_bid_details);
-                    console.log(this.state.my_bid_details_master);
-
-
                     // this.setState({my_project_as_freelancer: response.result});
                     var temp_array = [];
                     var j = 0;
-                    for (var i = 0; i < response.result.length; i++) {
+                    for (let i = 0; i < response.result.length; i++) {
+                        if (response.result[i].status !== "Submitted" && response.result[i].freelancer_username !== user.username) {
+                            temp_array[j] = response.result[i];
+                            console.log(response.result[i].status);
+                            j++;
+                        }
+                    }
+
+                    if (temp_array.length > 0)
+                        this.setState({my_bid_status: true});
+
+
+                    this.setState({my_bid_details: temp_array});
+                    this.setState({my_bid_details_master: temp_array});
+
+
+                    // this.setState({my_project_as_freelancer: response.result});
+                    temp_array = [];
+                   j = 0;
+                    for (let i = 0; i < response.result.length; i++) {
                         if (response.result[i].freelancer_username === user.username) {
-                            temp_array[j] = response.result[i]
+                            temp_array[j] = response.result[i];
+                            console.log(response.result[i].status);
                             j++;
                         }
                     }
@@ -82,7 +89,6 @@ class DashboardPage extends React.Component {
 
                     this.setState({my_project_as_freelancer: temp_array});
                     this.setState({my_project_as_freelancer_master: temp_array});
-
 
                     console.log("this.state.my_project_as_freelancer");
                     console.log(this.state.my_project_as_freelancer);
@@ -271,7 +277,6 @@ class DashboardPage extends React.Component {
         else if (event.target.value === "Submitted") {
             var temp_array = [];
 
-
             var j = 0;
             for (var i = 0; i < this.state.my_bid_details_master.length; i++) {
                 if (this.state.my_bid_details_master[i].status === "Submitted") {
@@ -280,9 +285,7 @@ class DashboardPage extends React.Component {
                 }
             }
             this.setState({my_bid_details: temp_array});
-
         }
-
     }
 
 
@@ -463,7 +466,6 @@ class DashboardPage extends React.Component {
                                         <option value="All">All</option>
                                         <option value="Open">Open</option>
                                         <option value="Assigned">Assigned</option>
-                                        <option value="Submitted">Submitted</option>
                                     </select>
                                 </div>
                             </div>
@@ -636,11 +638,10 @@ class DashboardPage extends React.Component {
                                                 </td>
                                                 <td>{Number(data.avg_bid).toFixed(2)}</td>
                                                 <td>{data.bids.bid_price}</td>
-                                                <td>Assigned to me</td>
+                                                <td>{data.status}</td>
                                             </tr>
                                         )
                                         }
-
                                         </tbody>
                                     </table>
                                     }
