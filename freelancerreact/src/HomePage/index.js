@@ -17,7 +17,7 @@ class HomePage extends React.Component {
         this.state = {
             currentPageNumber_table1: 1,
             currentPageNumber_table2: 1,
-            itemsPerPage: 2,
+            itemsPerPage: 5,
             homecontent: false,
             homecontentmaster: false,
             relevantcontent: false,
@@ -449,11 +449,11 @@ class HomePage extends React.Component {
                                     </div>
 
                                     <div className="col-sm-12 col-sm-offset-0">
-                                        <div className="col-md-12 col-md-offset-0">
+
                                             <button className="btn btn-primary" id="TransactionButton" onClick={() => {
                                                 history.push("/TransactionManager");
                                             }}> Transaction Manager </button>
-                                        </div>
+
                                     </div>
 
 

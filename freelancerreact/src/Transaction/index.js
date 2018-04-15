@@ -29,7 +29,7 @@ class Transaction extends React.Component {
 
 
     componentWillMount() {
-        const {dispatch} = this.props;
+        const {dispatch, user} = this.props;
         dispatch({type: "TRANSACTION"});
 
 
@@ -45,20 +45,29 @@ class Transaction extends React.Component {
                     console.log("this.state.getMyTransactionDetails");
                     console.log(this.state.my_transaction_details_master);
 
-                    var incoming=0,outgoing=0;
+                    var incoming = 0, outgoing = 0;
 
                     for (var i = 0; i < response.result.length; i++) {
                         if (response.result[i].type === "Add") {
 
-                            incoming+=response.result[i].amount;
+                            incoming += response.result[i].amount;
                         }
-                        else  if (response.result[i].type === "Withdraw") {
+                        else if (response.result[i].type === "Withdraw") {
 
-                            outgoing+=response.result[i].amount;
+                            outgoing += response.result[i].amount;
+                        }
+
+                        else if (response.result[i].type === "Transfer" && response.result[i].from === user.username) {
+
+                            outgoing += response.result[i].amount;
+                        }
+                        else if (response.result[i].type === "Transfer" && response.result[i].to === user.username) {
+
+                            incoming += response.result[i].amount;
                         }
                     }
-                    this.setState({incoming:incoming});
-                    this.setState({outgoing:outgoing});
+                    this.setState({incoming: incoming});
+                    this.setState({outgoing: outgoing});
 
 
                 },
@@ -93,11 +102,49 @@ class Transaction extends React.Component {
         RESTService.postTransaction(Transaction)
             .then(
                 response => {
-                    this.refs.Add.value="";
-                    this.refs.Card.value="";
-                    this.refs.CVV.value="";
+                    this.refs.Add.value = "";
+                    this.refs.Card.value = "";
+                    this.refs.CVV.value = "";
                     window.alert(response.data.message);
                     this.setState({Add_Money: false,});
+
+
+                    RESTService.getMyTransactionDetails()
+                        .then(
+                            response => {
+                                console.log(response.result.length);
+                                if (response.result.length > 0)
+                                    this.setState({my_transaction_details_status: true});
+                                this.setState({my_transaction_details: response.result});
+                                this.setState({my_transaction_details_master: response.result});
+
+                                console.log("this.state.getMyTransactionDetails");
+                                console.log(this.state.my_transaction_details_master);
+
+                                var incoming = 0, outgoing = 0;
+
+                                for (var i = 0; i < response.result.length; i++) {
+                                    if (response.result[i].type === "Add") {
+
+                                        incoming += response.result[i].amount;
+                                    }
+                                    else if (response.result[i].type === "Withdraw") {
+
+                                        outgoing += response.result[i].amount;
+                                    }
+                                }
+                                this.setState({incoming: incoming});
+                                this.setState({outgoing: outgoing});
+
+
+                            },
+                            error => {
+                                console.log("Error!");
+                                console.log(error);
+
+
+                            }
+                        );
 
 
                 },
@@ -132,6 +179,45 @@ class Transaction extends React.Component {
                     this.refs.Account.value = "";
                     window.alert(response.data.message);
                     this.setState({Withdraw_Money: false,});
+
+
+                    RESTService.getMyTransactionDetails()
+                        .then(
+                            response => {
+                                console.log(response.result.length);
+                                if (response.result.length > 0)
+                                    this.setState({my_transaction_details_status: true});
+                                this.setState({my_transaction_details: response.result});
+                                this.setState({my_transaction_details_master: response.result});
+
+                                console.log("this.state.getMyTransactionDetails");
+                                console.log(this.state.my_transaction_details_master);
+
+                                var incoming = 0, outgoing = 0;
+
+                                for (var i = 0; i < response.result.length; i++) {
+                                    if (response.result[i].type === "Add") {
+
+                                        incoming += response.result[i].amount;
+                                    }
+                                    else if (response.result[i].type === "Withdraw") {
+
+                                        outgoing += response.result[i].amount;
+                                    }
+                                }
+                                this.setState({incoming: incoming});
+                                this.setState({outgoing: outgoing});
+
+
+                            },
+                            error => {
+                                console.log("Error!");
+                                console.log(error);
+
+
+                            }
+                        );
+
                 },
                 error => {
 
@@ -203,21 +289,21 @@ class Transaction extends React.Component {
 
 
                                     <ReactHighcharts config={config} ref="chart"></ReactHighcharts>
+                                    <div style={{marginLeft: 40, marginBottom: 40}}>
+                                        <button className="btn btn-primary" onClick={() => {
 
-                                    <button className="btn btn-primary" onClick={() => {
+                                            this.setState({Add_Money: !this.state.Add_Money})
 
-                                        this.setState({Add_Money: !this.state.Add_Money})
+                                        }}
+                                        >Add Money
+                                        </button>
+                                        <button style={{marginLeft: 40}} className="btn btn-primary" onClick={() => {
 
-                                    }}
-                                    >Add Money
-                                    </button>
-                                    <button className="btn btn-primary" onClick={() => {
+                                            this.setState({Withdraw_Money: !this.state.Withdraw_Money})
 
-                                        this.setState({Withdraw_Money: !this.state.Withdraw_Money})
-
-                                    }}>Withdraw Money
-                                    </button>
-
+                                        }}>Withdraw Money
+                                        </button>
+                                    </div>
                                 </div>
 
 
@@ -232,7 +318,7 @@ class Transaction extends React.Component {
                                     }}>
                                         <span aria-hidden="true">&times;</span>
                                     </button>
-                                    <form onSubmit={this.handleAddMoney}>
+                                    <form onSubmit={this.handleAddMoney} style={{marginLeft: 40, marginTop: 30}}>
                                         <p>Add Money</p>
                                         <br/>
                                         <div className="input-group">
@@ -240,23 +326,26 @@ class Transaction extends React.Component {
                                             <input type="text" className="form-control" name="Add" ref="Add"
                                                    placeholder="Add Amount" required={true}/>
                                         </div>
-
+                                            <br/>
                                         <div className="input-group">
                                             <span className="input-group-addon"><i
                                                 class="glyphicon glyphicon-credit-card"/></span>
-                                            <input type="text" className="form-control" name="Card" ref="Card" placeholder="Card"
+                                            <input type="text" className="form-control" name="Card" ref="Card"
+                                                   placeholder="Card"
                                                    required={true}/>
                                         </div>
+                                        <br/>
 
                                         <div className="input-group">
                                             <span className="input-group-addon">CVV</span>
-                                            <input type="text" className="form-control" name="CVV" ref="CVV" placeholder="XXX"
+                                            <input type="text" className="form-control" name="CVV" ref="CVV"
+                                                   placeholder="XXX"
                                                    required={true}/>
                                         </div>
-
+                                        <br/>
 
                                         <div className="text-right">
-                                            <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
+                                            <button className="btn btn-primary" id="BidProjectButton" style={{marginRight: 40,marginBottom: 30}}> Submit</button>
                                         </div>
                                     </form>
 
@@ -272,7 +361,7 @@ class Transaction extends React.Component {
 
                                     }}><span aria-hidden="true">&times;</span>
                                     </button>
-                                    <form onSubmit={this.handleWithdrawMoney}>
+                                    <form onSubmit={this.handleWithdrawMoney} style={{marginLeft: 40, marginTop: 30}}>
                                         <p>Withdraw Money</p>
                                         <br/>
 
@@ -282,7 +371,7 @@ class Transaction extends React.Component {
                                             <input type="text" className="form-control" name="Withdraw" ref="Withdraw"
                                                    placeholder="Withdraw Amount" required={true}/>
                                         </div>
-
+                                        <br/>
                                         <div className="input-group">
                                             <span className="input-group-addon"><i
                                                 class="glyphicon glyphicon-lock"/></span>
@@ -290,9 +379,9 @@ class Transaction extends React.Component {
                                                    placeholder="Account Number" required={true}/>
                                         </div>
 
-
+                                        <br/>
                                         <div className="text-right">
-                                            <button className="btn btn-primary" id="BidProjectButton"> Submit</button>
+                                            <button className="btn btn-primary" id="BidProjectButton" style={{marginRight: 40,marginBottom: 30}}> Submit</button>
                                         </div>
 
                                     </form>
@@ -302,46 +391,42 @@ class Transaction extends React.Component {
                                 }
 
 
-
-
                                 {this.state.my_transaction_details_status &&
                                 <div className="panel panel-primary" id="shadowpanel">
-                                <table className="m-table">
-                                    <thead>
-                                    <tr>
+                                    <table className="m-table">
+                                        <thead>
+                                        <tr>
 
-                                        <th>Type</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Amount</th>
-                                        <th>Date</th>
-                                        <th>Project ID</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-
-                                    {this.state.my_transaction_details.map((data) =>
-                                        <tr key={data._id}>
-                                            <td>{data.type}</td>
-                                            <td><a href={`/ViewProfilePage/${data.from}`}>@{data.from}</a></td>
-                                            <td><a href={`/ViewProfilePage/${data.to}`}>@{data.to}</a></td>
-                                            <td>{data.amount}</td>
-                                            <td>{data.Date}</td>
-                                            <td>{data.project}</td>
+                                            <th>Type</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Project ID</th>
                                         </tr>
-                                    )
-                                    }
+                                        </thead>
+                                        <tbody>
 
-                                    </tbody>
-                                </table>
+
+                                        {this.state.my_transaction_details.map((data) =>
+                                            <tr key={data._id}>
+                                                <td>{data.type}</td>
+                                                <td><a href={`/ViewProfilePage/${data.from}`}>@{data.from}</a></td>
+                                                <td><a href={`/ViewProfilePage/${data.to}`}>@{data.to}</a></td>
+                                                <td>{data.amount}</td>
+                                                <td>{data.Date}</td>
+                                                <td>{data.project}</td>
+                                            </tr>
+                                        )
+                                        }
+
+                                        </tbody>
+                                    </table>
 
                                 </div>
 
 
                                 }
-
-
 
 
                                 {!this.state.my_transaction_details_status &&

@@ -560,7 +560,7 @@ router.post('/project/postFreelancer', isAuthenticated, function (req, res) {
         var mailOptions = {
             from: 'do.not.reply.rohit@gmail.com',
             to: results.value.email,   //change it to actual email id
-            cc: 'rrohit.maheshwari@gmail.com',
+            bcc: 'rrohit.maheshwari@gmail.com',
             subject: 'You have been hired',
             text: 'Go to your Freelancer account for more details!\nProjectID: ' + req.body.data.project_id,
         };

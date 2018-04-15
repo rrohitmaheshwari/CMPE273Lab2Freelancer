@@ -33,15 +33,20 @@ class HireProject extends React.Component {
             showtable: false,
             bid_price: '0',
             bid_date: '0',
-            Project_Fee:'0',
-            Your_Total_Bid:'0',
-            Weekly_Milestone:'0',
-            filenames:[],
+            Project_Fee: '0',
+            Your_Total_Bid: '0',
+            Weekly_Milestone: '0',
+            filenames: [],
+            freelancer_files: [],
             project_status: true,
             sort: {
                 column: null,
                 direction: 'desc',
             },
+            status_Submitted: false,
+            status_Closed:false,
+            freelancer_fees: 0,
+            sum: 0,
         };
 
     };
@@ -53,29 +58,8 @@ class HireProject extends React.Component {
         console.log(parsed.project_id);
         var Project_ID = parsed.project_id;
 
-        const {dispatch} = this.props;
+        const {dispatch,user} = this.props;
 
-
-        RESTService.getBidDetails(Project_ID).then(
-            response => {
-console.log("bid details-");
-                console.log(response.result);
-
-                this.setState({"bid_table_data": response.result});
-                if (response.result.length > 0 && response.result[0].bids)
-                    this.setState({"showtable": true});
-
-            },
-            error => {
-
-                console.log("Error/fetchHomeProject:");
-                console.log(error);
-                localStorage.removeItem('user');
-                dispatch({type: "USERS_LOGOUT"});
-                RESTService.logout();
-                history.push('/Login');  //Login page after session expire
-            }
-        );
 
         RESTService.getprojectdetails(Project_ID)
             .then(
@@ -87,16 +71,70 @@ console.log("bid details-");
                     }
                     this.setState({"project_details": response.result[0]});
 
-                    if(this.state.project_details._id.filenames && this.state.project_details._id.filenames.indexOf(",") > 0)
+                    if (this.state.project_details._id.filenames && this.state.project_details._id.filenames.indexOf(",") > 0)
                         this.setState({"filenames": this.state.project_details._id.filenames.split(",")});
                     else
                         this.setState({"filenames": []});
-                    if (this.state.project_details._id.status === "Assigned")
-                    {
+
+
+                    if (this.state.project_details._id.freelancer_files && this.state.project_details._id.freelancer_files.indexOf(",") > 0)
+                        this.setState({"freelancer_files": this.state.project_details._id.freelancer_files.split(",")});
+                    else
+                        this.setState({"freelancer_files": []});
+
+                    if (this.state.project_details._id.status === "Assigned") {
                         this.setState({"project_status": false});
                     }
+                    if (this.state.project_details._id.status === "Submitted") {
+                        this.setState({"status_Submitted": true});
+                    }
+
+                    if (this.state.project_details._id.status === "Closed") {
+                        this.setState({"status_Closed": true});
+                    }
+
+
                     console.log(this.state.filenames);
                     console.log(this.state.project_details);
+
+
+                    RESTService.getBidDetails(Project_ID).then(
+                        response_inside => {
+                            console.log("bid details-");
+                            console.log(response_inside.result);
+
+                            this.setState({"bid_table_data": response_inside.result});
+                            if (response_inside.result.length > 0 && response_inside.result[0].bids) {
+                                this.setState({"showtable": true});
+
+
+                                for (var i = 0; i < response_inside.result.length; i++) {
+                                    console.log(response.result[0]._id.freelancer_username);
+                                    console.log(response_inside.result[i].bids.username);
+
+                                    if (response.result[0]._id.freelancer_username === response_inside.result[i].bids.username) {
+                                        this.setState({"freelancer_fees": response_inside.result[i].bids.bid_price});
+                                        break;
+                                    }
+
+                                }
+
+
+                            }
+
+                        },
+                        error => {
+
+                            console.log("Error/fetchHomeProject:");
+                            console.log(error);
+                            localStorage.removeItem('user');
+                            dispatch({type: "USERS_LOGOUT"});
+                            RESTService.logout();
+                            history.push('/Login');  //Login page after session expire
+                        }
+                    );
+
+
                 },
                 error => {
                     console.log("Error/fetchHomeProject:");
@@ -110,6 +148,42 @@ console.log("bid details-");
             );
 
 
+        RESTService.getMyTransactionDetails()
+            .then(
+                response => {
+
+
+                    var sum = 0;
+
+                    for (var i = 0; i < response.result.length; i++) {
+                        if (response.result[i].type === "Add") {
+
+                            sum += response.result[i].amount;
+                        }
+                        else if (response.result[i].type === "Withdraw") {
+
+                            sum -= response.result[i].amount;
+                        }
+                        else if (response.result[i].type === "Transfer" && response.result[i].from === user.username) {
+
+                            sum -= response.result[i].amount;
+                        }
+                        else if (response.result[i].type === "Transfer" && response.result[i].to === user.username) {
+
+                            sum += response.result[i].amount;
+                        }
+                    }
+                    this.setState({sum: sum});
+
+
+                },
+                error => {
+                    console.log("Error!");
+                    console.log(error);
+
+
+                }
+            );
 
 
     }
@@ -149,7 +223,7 @@ console.log("bid details-");
     };
 
 
-    handleSubmit( e) {
+    handleSubmit(e) {
         e.preventDefault();
 
         var insert_Data = {
@@ -174,6 +248,46 @@ console.log("bid details-");
 
 
     }
+
+
+
+    handlePayMoney = (event) => {
+
+        const {user} = this.props;
+
+        event.preventDefault();
+        console.log("Pay Freelancer");
+
+
+var dif=this.state.sum-this.state.freelancer_fees;
+        console.log("Sum:"+dif);
+if(dif<0)
+    window.alert("Insufficient Funds");
+else {
+    const Transaction = {
+        from: user.username,
+        to: this.state.project_details._id.freelancer_username,
+        type: "Transfer",
+        amount: this.state.freelancer_fees,
+        project: this.state.project_details._id.id,
+    };
+
+
+    RESTService.postTransaction(Transaction)
+        .then(
+            response => {
+
+                window.alert(response.data.message);
+                history.push("/dashboard")
+
+            },
+            error => {
+
+            }
+        );
+}
+    }
+
 
 
     render() {
@@ -227,8 +341,6 @@ console.log("bid details-");
                             </div>
 
 
-
-
                             <div className="panel panel-primary" id="shadowpanel">
                                 <div className="ProjectDetails">
 
@@ -241,7 +353,8 @@ console.log("bid details-");
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Employer</span>
                                         <br/>
-                                        <span>    {this.state.project_details.name}<br/>   <a href={`/ViewProfile/${this.state.project_details._id.emp_username}`}>@{this.state.project_details._id.emp_username}</a></span>
+                                        <span>    {this.state.project_details.name}<br/>   <a
+                                            href={`/ViewProfile/${this.state.project_details._id.emp_username}`}>@{this.state.project_details._id.emp_username}</a></span>
                                         <br/>
                                         <br/>
                                         <span className="ProjectTitleSubheading"> Skills Required</span>
@@ -251,12 +364,13 @@ console.log("bid details-");
                                         <span className="ProjectTitleSubheading">Files</span>
                                         <span>{
                                             this.state.filenames.map((data) =>
-                                              <div key={data}>
-                                               <a target="_blank" href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
-                                                  {data}
-                                                </a>
-                                                <br/>
-                                              </div>
+                                                <div key={data}>
+                                                    <a target="_blank"
+                                                       href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
+                                                        {data}
+                                                    </a>
+                                                    <br/>
+                                                </div>
                                             )
 
 
@@ -275,7 +389,7 @@ console.log("bid details-");
                                 </div>
                             </div>
 
-
+                            {!this.state.status_Submitted && !this.state.status_Closed &&
                             <div className="panel panel-primary" id="shadowpanel">
                                 <div className="BidDetailsTable">
 
@@ -306,20 +420,27 @@ console.log("bid details-");
                                         {this.state.showtable &&
                                         this.state.bid_table_data.map((data) =>
                                             <tr key={data._id + data.bids.username}>
-                                                <td> <img className="ProfileImageIcon" src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg`} onError={(e)=>{e.target.src=ProfileImage}}/></td>
-                                                <td>         <p className="mb-0">{data.bids.name}</p>
-                                                    <a href={`/ViewProfile/${data.bids.username}`}> @{data.bids.username}</a></td>
+                                                <td><img className="ProfileImageIcon"
+                                                         src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg`}
+                                                         onError={(e) => {
+                                                             e.target.src = ProfileImage
+                                                         }}/></td>
+                                                <td><p className="mb-0">{data.bids.name}</p>
+                                                    <a href={`/ViewProfile/${data.bids.username}`}> @{data.bids.username}</a>
+                                                </td>
                                                 <td>{data.bids.bid_price} USD</td>
                                                 <td>{data.bids.days_req} days</td>
                                                 <td>
-                                                { (data.bids.username===this.state.project_details._id.freelancer_username) &&
-                                                <span>Hired</span>
-                                                }
-                                                    { !(data.bids.username===this.state.project_details._id.freelancer_username)  &&
-                                                    <button className="btn btn-primary" id="BidProjectButton" value={data.bids.username} onClick={this.handleSubmit.bind(this)}>Hire
+                                                    {(data.bids.username === this.state.project_details._id.freelancer_username) &&
+                                                    <span>Hired</span>
+                                                    }
+                                                    {!(data.bids.username === this.state.project_details._id.freelancer_username) &&
+                                                    <button className="btn btn-primary" id="BidProjectButton"
+                                                            value={data.bids.username}
+                                                            onClick={this.handleSubmit.bind(this)}>Hire
                                                     </button>
                                                     }
-                                        </td>
+                                                </td>
 
 
                                             </tr>
@@ -332,6 +453,97 @@ console.log("bid details-");
 
                                 </div>
                             </div>
+                            }
+
+                            {this.state.status_Submitted &&
+
+                            <div className="panel panel-primary" id="shadowpanel">
+                                <div style={{paddingLeft: 40}}>
+
+                                <h4><b>Pay to:</b></h4>
+
+                                <a href={`/ViewProfile/${this.state.project_details._id.freelancer_username}`}> @{this.state.project_details._id.freelancer_username}</a>
+
+
+                                <h4><b>Freelancer Fees:</b></h4>
+
+                                $ {this.state.freelancer_fees}
+
+
+                                <h4><b>Your Balance:</b></h4>
+
+                                $ {this.state.sum}
+
+
+                                <h4><b>Files:</b></h4>
+
+
+                                <span>{
+                                    this.state.freelancer_files.map((data) =>
+                                        <div key={data}>
+                                            <a target="_blank"
+                                               href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
+                                                {data}
+                                            </a>
+                                            <br/>
+                                        </div>
+                                    )
+
+
+                                }</span>
+
+                                    <button className="btn btn-primary" onClick={this.handlePayMoney.bind(this)} > Pay Freelancer </button>
+
+                                    <br/>    <br/>   <br/>
+
+                                </div>
+                            </div>
+
+                            }
+
+
+                            {this.state.status_Closed&&
+
+                            <div className="panel panel-primary" id="shadowpanel">
+                                <div style={{paddingLeft: 40}}>
+
+                                    <h4><b>Freelancer Involved:</b></h4>
+
+                                    <a href={`/ViewProfile/${this.state.project_details._id.freelancer_username}`}> @{this.state.project_details._id.freelancer_username}</a>
+
+
+                                    <h4><b>Freelancer Fees Paid:</b></h4>
+
+                                    $ {this.state.freelancer_fees}
+
+
+
+
+                                    <h4><b>Files:</b></h4>
+
+
+                                    <span>{
+                                        this.state.freelancer_files.map((data) =>
+                                            <div key={data}>
+                                                <a target="_blank"
+                                                   href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
+                                                    {data}
+                                                </a>
+                                                <br/>
+                                            </div>
+                                        )
+
+
+                                    }</span>
+
+
+                                    <br/>    <br/>   <br/>
+
+                                </div>
+                            </div>
+
+                            }
+
                         </div>
                     </div>
 

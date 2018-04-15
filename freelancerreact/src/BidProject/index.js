@@ -57,6 +57,7 @@ class BidProject extends React.Component {
             freelancer_assigned: false,
             isUploaded: false,
             projectFiles: [],
+            project_closed:false,
         };
         this.handleChange = this.handleChange.bind(this);
     };
@@ -137,7 +138,9 @@ class BidProject extends React.Component {
                     if (this.state.project_details._id.freelancer_username === user.username) {
                         this.setState({freelancer_assigned: true});
                     }
-
+                    if (this.state.project_details._id.status === "Closed") {
+                        this.setState({project_closed: true});
+                    }
 
                 },
                 error => {
@@ -595,7 +598,7 @@ class BidProject extends React.Component {
                             </div>
                             }
 
-                            {this.state.freelancer_assigned &&
+                            {this.state.freelancer_assigned && !this.state.project_closed &&
 
 
                             <div className="panel panel-primary" id="shadowpanel">
@@ -612,8 +615,7 @@ class BidProject extends React.Component {
                                                                     className="file-upload-button-text">Upload File</span>
                                                             </span>
                                     <p className="file-upload-text">
-                                        Drag & drop any images or documents that might be
-                                        helpful in explaining your project brief here.
+                                        Drag & drop any images or documents.
                                     </p>
                                 </Dropzone>
                                 {

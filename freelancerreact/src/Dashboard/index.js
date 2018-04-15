@@ -10,6 +10,10 @@ class DashboardPage extends React.Component {
         super(props);
 
         this.state = {
+            currentPageNumber_table1: 1,
+            currentPageNumber_table2: 1,
+            currentPageNumber_table3: 1,
+            itemsPerPage: 5,
             my_project_details: [],
             my_project_details_status: false,
             my_bid_details: [],
@@ -232,6 +236,20 @@ class DashboardPage extends React.Component {
             this.setState({my_project_details: temp_array});
 
         }
+        else if (event.target.value === "Closed") {
+            var temp_array = [];
+
+
+            var j = 0;
+            for (var i = 0; i < this.state.my_project_details_master.length; i++) {
+                if (this.state.my_project_details_master[i]._id.status === "Closed") {
+                    temp_array[j] = this.state.my_project_details_master[i]
+                    j++;
+                }
+            }
+            this.setState({my_project_details: temp_array});
+
+        }
 
     }
 
@@ -331,7 +349,140 @@ class DashboardPage extends React.Component {
 
     }
 
+    handleChangePage_table1 = (number) => {
+        // e.preventDefault();
+        console.log('####handleChangePage_table1.event.target:');
+        // console.log(event.target.value);
+        console.log(number);
+        this.setState({
+            currentPageNumber_table1: Number(number)
+        });
+    };
+
+
+    handleChangePage_table2 = (number) => {
+        // e.preventDefault();
+        console.log('####handleChangePage_table1.event.target:');
+        // console.log(event.target.value);
+        console.log(number);
+        this.setState({
+            currentPageNumber_table2: Number(number)
+        });
+    };
+
+
+    handleChangePage_table3 = (number) => {
+        // e.preventDefault();
+        console.log('####handleChangePage_table1.event.target:');
+        // console.log(event.target.value);
+        console.log(number);
+        this.setState({
+            currentPageNumber_table3: Number(number)
+        });
+    };
     render() {
+
+        let currentItems_table1;
+        const pageNumbers_table1 = [];
+
+        const {user} = this.props;
+
+        if (this.state.my_project_details && (this.state.my_project_details.length > 0)) {
+
+            //Pagination logic
+            const {currentPageNumber_table1, itemsPerPage} = this.state;
+            // Logic for displaying current items
+            const indexOfLastItem = currentPageNumber_table1 * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            currentItems_table1 = this.state.my_project_details.slice(indexOfFirstItem, indexOfLastItem);
+
+
+            // Logic for displaying page numbers
+            for (let i = 1; i <= Math.ceil(this.state.my_project_details.length / itemsPerPage); i++) {
+                pageNumbers_table1.push(i);
+            }
+        }
+
+        const renderPageNumbers_table1 = pageNumbers_table1.map(number => {
+            return (
+
+                <li key={number} id={number} className={
+                    (this.state.currentPageNumber_table1 === number) ? 'active' : ''
+                }>
+                    <a onClick={() => this.handleChangePage_table1(number)}> {number} </a>
+                </li>
+            );
+        });
+
+
+        let currentItems_table2;
+        const pageNumbers_table2 = [];
+
+
+        if (this.state.my_bid_details && (this.state.my_bid_details.length > 0)) {
+
+            //Pagination logic
+            const {currentPageNumber_table2, itemsPerPage} = this.state;
+            // Logic for displaying current items
+            const indexOfLastItem = currentPageNumber_table2 * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            currentItems_table2 = this.state.my_bid_details.slice(indexOfFirstItem, indexOfLastItem);
+
+
+
+
+            // Logic for displaying page numbers
+            for (let i = 1; i <= Math.ceil(this.state.my_bid_details.length / itemsPerPage); i++) {
+                pageNumbers_table2.push(i);
+            }
+        }
+
+        const renderPageNumbers_table2 = pageNumbers_table2.map(number => {
+            return (
+
+                <li key={number} id={number} className={
+                    (this.state.currentPageNumber_table2 === number) ? 'active' : ''
+                }>
+                    <a onClick={() => this.handleChangePage_table2(number)}> {number} </a>
+                </li>
+            );
+        });
+
+        let currentItems_table3;
+        const pageNumbers_table3 = [];
+
+
+        if (this.state.my_project_as_freelancer && (this.state.my_project_as_freelancer.length > 0)) {
+
+            //Pagination logic
+            const {currentPageNumber_table3, itemsPerPage} = this.state;
+            // Logic for displaying current items
+            const indexOfLastItem = currentPageNumber_table3 * itemsPerPage;
+            const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+            currentItems_table3 = this.state.my_project_as_freelancer.slice(indexOfFirstItem, indexOfLastItem);
+
+
+
+
+            // Logic for displaying page numbers
+            for (let i = 1; i <= Math.ceil(this.state.my_project_as_freelancer.length / itemsPerPage); i++) {
+                pageNumbers_table3.push(i);
+            }
+        }
+
+        const renderPageNumbers_table3 = pageNumbers_table3.map(number => {
+            return (
+
+                <li key={number} id={number} className={
+                    (this.state.currentPageNumber_table3 === number) ? 'active' : ''
+                }>
+                    <a onClick={() => this.handleChangePage_table3(number)}> {number} </a>
+                </li>
+            );
+        });
+
+
+
 
 
         return (
@@ -353,6 +504,7 @@ class DashboardPage extends React.Component {
                                         <option value="Open">Open</option>
                                         <option value="Assigned">Assigned</option>
                                         <option value="Submitted">Submitted</option>
+                                        <option value="Closed">Closed</option>
                                     </select>
                                 </div>
                             </div>
@@ -417,7 +569,7 @@ class DashboardPage extends React.Component {
                                         <tbody>
 
 
-                                        {this.state.my_project_details.map((data) =>
+                                        {currentItems_table1 && currentItems_table1.map((data) =>
                                             <tr key={data._id.id}>
                                                 <td><img className="FreeLancerIconDashboard" src={Icon}
                                                          alt="FreelancerIcon"/>
@@ -449,6 +601,11 @@ class DashboardPage extends React.Component {
                                 </div>
                             </div>
 
+                            <div className="pagination">
+                                <ul id="page-numbers" className="pagination">
+                                    {renderPageNumbers_table1}
+                                </ul>
+                            </div>
 
                         </div>
                     </div>
@@ -527,7 +684,7 @@ class DashboardPage extends React.Component {
                                         <tbody>
 
 
-                                        {this.state.my_bid_details.map((data) =>
+                                        {currentItems_table2 && currentItems_table2.map((data) =>
                                             <tr key={data._id}>
                                                 <td><img className="FreeLancerIconDashboard" src={Icon}
                                                          alt="FreelancerIcon"/>
@@ -549,7 +706,11 @@ class DashboardPage extends React.Component {
 
                                 </div>
                             </div>
-
+                            <div className="pagination">
+                                <ul id="page-numbers" className="pagination">
+                                    {renderPageNumbers_table2}
+                                </ul>
+                            </div>
 
                         </div>
                     </div>
@@ -628,7 +789,7 @@ class DashboardPage extends React.Component {
                                         <tbody>
 
 
-                                        {this.state.my_project_as_freelancer.map((data) =>
+                                        {currentItems_table3 && currentItems_table3.map((data) =>
                                             <tr key={data._id}>
                                                 <td><img className="FreeLancerIconDashboard" src={Icon}
                                                          alt="FreelancerIcon"/>
@@ -649,7 +810,11 @@ class DashboardPage extends React.Component {
 
                                 </div>
                             </div>
-
+                            <div className="pagination">
+                                <ul id="page-numbers" className="pagination">
+                                    {renderPageNumbers_table3}
+                                </ul>
+                            </div>
 
                         </div>
                     </div>

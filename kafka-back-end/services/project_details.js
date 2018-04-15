@@ -37,7 +37,8 @@ function handle_request(msg, callback) {
                     "skills_req"            : "$skills_req",
                     "description"           : "$description",
                     "filenames"             : "$filenames",
-                    "bid_count"				: "$bid_count"
+                    "bid_count"				: "$bid_count",
+                    "freelancer_files"		: "$freelancer_files",
                 },
                 "avg_bid": {
                     "$avg": "$bids.bid_price"
