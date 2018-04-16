@@ -448,7 +448,7 @@ class Transaction extends React.Component {
                                     <div className="col-sm-5 col-sm-offset-0">
                                         <div className="col-md-12 col-md-offset-0">
                                             <img className="FreeLancerIcon"
-                                                 src={`http://localhost:3001/ProfileImage/${user.username}.jpg`}
+                                                 src={`http://54.91.251.46:3001/ProfileImage/${user.username}.jpg`}
                                                  onError={(e) => {
                                                      e.target.src = ProfileImage
                                                  }}/>

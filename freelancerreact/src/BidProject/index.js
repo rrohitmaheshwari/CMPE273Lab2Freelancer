@@ -515,7 +515,7 @@ class BidProject extends React.Component {
                                             this.state.filenames.map((data) =>
                                                 <div key={data}>
                                                     <a target="_blank"
-                                                       href={`http://localhost:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
+                                                       href={`http://54.91.251.46:3001/project_files/${this.state.project_details._id.emp_username}/${data}`}>
                                                         {data}
                                                     </a>
                                                     <br/>
@@ -581,7 +581,7 @@ class BidProject extends React.Component {
                                         this.state.bid_table_data.map((data) =>
                                             <tr key={data._id + data.bids.username} className="bidtablerow">
                                                 <td><img className="ProfileImageIcon"
-                                                         src={`http://localhost:3001/ProfileImage/${data.bids.username}.jpg`}
+                                                         src={`http://54.91.251.46:3001/ProfileImage/${data.bids.username}.jpg`}
                                                          alt={``} onError={(e) => {
                                                     e.target.src = ProfileImage
                                                 }}/></td>

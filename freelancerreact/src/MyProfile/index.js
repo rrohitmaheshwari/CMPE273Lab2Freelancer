@@ -34,7 +34,7 @@ class MyProfile extends React.Component {
             phone: this.props.user.phone,
             phoneSaved: this.props.user.phone,
             phoneEdit: false,
-            profileImg: "http://localhost:3001/ProfileImage/"+this.props.user.username+".jpg",
+            profileImg: "http://54.91.251.46:3001/ProfileImage/"+this.props.user.username+".jpg",
             skills : this.props.user.skills,
             skillsSaved : this.props.user.skills,
             modalIsOpen: false,
