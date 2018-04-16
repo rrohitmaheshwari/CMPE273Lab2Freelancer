@@ -26,7 +26,7 @@ app.use(logger('dev'));
 
 app.use(cors(
     {
-        origin: ['http://54.91.251.46:3000'],
+        origin: ['http://54.89.108.85:3000'],
         credentials: true,
     }
 ));

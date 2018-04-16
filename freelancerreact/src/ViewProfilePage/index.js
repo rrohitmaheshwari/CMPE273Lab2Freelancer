@@ -63,7 +63,7 @@ class ViewProfilePage extends React.Component {
                                                     <div className="profile-avatar-image-done" >
 
                                                         <img className="avatar-image"
-                                                             src={`http://54.91.251.46:3001/ProfileImage/${profileUser.username}.jpg`}
+                                                             src={`http://54.89.108.85:3001/ProfileImage/${profileUser.username}.jpg`}
                                                              onError={(e) => {
                                                                  e.target.src = ProfileImage
                                                              }}

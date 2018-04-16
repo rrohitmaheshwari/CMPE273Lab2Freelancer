@@ -39,7 +39,7 @@
   "license": "ISC",
   "proxy": {
     "/ProfileImage": {
-      "target": "http://54.91.251.46:3001",
+      "target": "http://54.89.108.85:3001",
       "ws": true
     }
   }
