@@ -4,7 +4,7 @@ function ConnectionProvider() {
     this.getConsumer = function(topic_name) {
       //  if (!this.kafkaConsumerConnection) {
 
-            this.client = new kafka.Client("54.89.108.852181");
+            this.client = new kafka.Client("54.89.108.85:2181");
             this.kafkaConsumerConnection = new kafka.Consumer(this.client,[ { topic: topic_name, partition: 0 }]);
             this.client.on('ready', function () { console.log('client ready!') })
       //  }
